@@ -1,0 +1,16 @@
+# Deny access to .htaccess
+<Files .htaccess>
+    Order allow,deny
+    Deny from all
+</Files>
+
+
+RewriteEngine On
+
+# Don't rewrite the resources directory
+RewriteRule ^(recources) - [L]
+
+
+RewriteCond %{REQUEST_FILENAME} !index.php
+#RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L,QSA]

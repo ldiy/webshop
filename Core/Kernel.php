@@ -3,12 +3,14 @@
 namespace Core;
 
 use Core\Handlers\ExceptionHandler;
-use Core\Exceptions\HttpNotFoundException;
 use Core\Http\Request;
 use Core\Http\Response;
+use Core\Middleware\MiddlewareDispatcher;
+use Core\Middleware\RouterMiddleware;
+use Core\Middleware\TestMiddleware;
 use Core\Routing\Router;
 use Core\View\Renderer;
-use Exception;
+use Throwable;
 
 class Kernel
 {
@@ -20,6 +22,7 @@ class Kernel
     private Request $request;
     private array $configArray;
 
+
     public function __construct($config)
     {
         Kernel::$instance = $this;
@@ -27,7 +30,7 @@ class Kernel
         $this->configArray = $config;
 
         $this->request = Request::createFromGlobals();
-        $this->router = new Router($this->request);
+        $this->router = new Router();
         $this->exceptionHandler = new ExceptionHandler($this->request, $this->config('debug'));
         $this->renderer = new Renderer($this->config('root_dir') . DIRECTORY_SEPARATOR . $this->config('views_dir'));
     }
@@ -40,37 +43,15 @@ class Kernel
     public function handleRequest(): Response
     {
         try {
-           return $this->handleRaw();
+            $middlewares[] = new TestMiddleware("Kernel");
+            $middlewares[] =  new RouterMiddleware($this->router);
+            $middlewareDispatcher = new MiddlewareDispatcher($middlewares);
+            return $middlewareDispatcher->handle($this->request);
         }
-        catch (\Throwable $e) {
+        catch (Throwable $e) {
             return $this->exceptionHandler->handle($e);
         }
 
-    }
-
-    /**
-     * Handle an incoming HTTP request. This method doesn't catch exceptions.
-     *
-     * @throws Exception
-     */
-    private function handleRaw(): Response
-    {
-        // Resolve the route for this request
-        if(!$this->router->resolve()) {
-            throw new HttpNotFoundException('No route found for this request');
-        }
-
-        // Get the found controller and parameters
-        $controller = $this->router->getMatchedController();
-        $params = $this->router->getMatchedParams();
-
-        // Call the controller
-        $response = $controller($this->request, ...$params);
-        if (!$response instanceof Response) {
-            throw new Exception('Controller did not return a response');
-        }
-
-        return $response;
     }
 
     /**
@@ -81,8 +62,8 @@ class Kernel
      */
     public function registerRoutes($routesFile): void
     {
-            require $routesFile;
-            loadRoutes($this->router);
+            $routes = require $routesFile;
+            $this->router->setRoutes($routes);
     }
 
     /**

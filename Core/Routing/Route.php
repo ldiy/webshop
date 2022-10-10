@@ -6,22 +6,27 @@ class Route
     /**
      * @var string
      */
-    private $name;
+    private string $name;
 
     /**
      * @var string
      */
-    private $pattern;
+    private string $pattern;
 
     /**
      * @var string
      */
-    private $method;
+    private string $method;
 
     /**
      * @var array<string>
      */
-    private $callback;
+    private array $callback;
+
+    /**
+     * @var array
+     */
+    private array $middlewares = [];
 
 
     /**
@@ -32,6 +37,10 @@ class Route
      */
     public function __construct(string $name, string $pattern, string $method, array $callback)
     {
+        if ($pattern !== '/') {
+            $pattern = rtrim($pattern, '/');
+        }
+
         $this->name = $name;
         $this->pattern = $this->parsePattern($pattern);
         $this->method = $method;
@@ -85,5 +94,70 @@ class Route
     {
         return $this->callback;
     }
+
+    /**
+     * @return string
+     */
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMethod(): string
+    {
+        return $this->method;
+    }
+
+    /**
+     * @return array
+     */
+    public function getMiddlewares(): array
+    {
+        return $this->middlewares;
+    }
+
+    /**
+     * @param $middleware
+     * @return $this
+     */
+    public function withMiddleware($middleware): self
+    {
+        if (is_array($middleware)) {
+            $this->middlewares = array_merge($this->middlewares, $middleware);
+        } else {
+            $this->middlewares[] = $middleware;
+        }
+
+        return $this;
+    }
+
+    static public function get($name, $path, $callback): Route
+    {
+        return new Route($name, $path, 'GET', $callback);
+    }
+
+    static public function post($name, $path, $callback): Route
+    {
+        return new Route($name, $path, 'POST', $callback);
+    }
+
+    static public function put($name, $path, $callback): Route
+    {
+        return new Route($name, $path, 'PUT', $callback);
+    }
+
+    static public function delete($name, $path, $callback): Route
+    {
+        return new Route($name, $path, 'DELETE', $callback);
+    }
+
+    static public function patch($name, $path, $callback): Route
+    {
+        return new Route($name, $path, 'PATCH', $callback);
+    }
+
 
 }

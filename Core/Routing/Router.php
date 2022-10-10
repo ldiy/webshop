@@ -1,6 +1,7 @@
 <?php
 namespace Core\Routing;
 
+use Core\Exceptions\HttpNotFoundException;
 use Core\Http\Request;
 
 class Router
@@ -10,112 +11,40 @@ class Router
      */
     private array $routes = [];
 
-    /**
-     * @var Request
-     */
-    private Request $request;
+
+    public function __construct()
+    {
+    }
 
     /**
-     * @var Route
+     * @param array $routes
+     * @return void
      */
-    private Route $matchedRoute;
+    public function setRoutes(array $routes): void
+    {
+        foreach ($routes as $route) {
+            $this->addRoute($route);
+        }
+    }
 
     /**
-     * @var array<string>
+     * @param Route $route
+     * @return void
      */
-    private array $matchedParams = [];
+    public function addRoute(Route $route): void
+    {
+        $this->routes[$route->getMethod()][$route->getName()] = $route;
+    }
 
-    /**
-     * @var array
-     */
-    private array $matchedController;
 
     /**
      * @param Request $request
+     * @return Route
      */
-    public function __construct(Request $request)
+    public function resolve(Request $request): Route
     {
-        $this->request = $request;
-    }
-
-    /**
-     * @param $name
-     * @param $path
-     * @param $method
-     * @param $callback
-     * @return void
-     */
-    public function addRoute($name, $path, $method, $callback): void
-    {
-        if ($path !== '/') {
-            $path = rtrim($path, '/');
-        }
-
-        $this->routes[$method][$name] = new Route($name, $path, $method, $callback);
-    }
-
-    /**
-     * @param $name
-     * @param $path
-     * @param $callback
-     * @return void
-     */
-    public function get($name, $path, $callback): void
-    {
-        $this->addRoute($name, $path, 'GET', $callback);
-    }
-
-    /**
-     * @param $name
-     * @param $path
-     * @param $callback
-     * @return void
-     */
-    public function post($name, $path, $callback): void
-    {
-        $this->addRoute($name, $path, 'POST', $callback);
-    }
-
-    /**
-     * @param $name
-     * @param $path
-     * @param $callback
-     * @return void
-     */
-    public function put($name, $path, $callback): void
-    {
-        $this->addRoute($name, $path, 'PUT', $callback);
-    }
-
-    /**
-     * @param $name
-     * @param $path
-     * @param $callback
-     * @return void
-     */
-    public function delete($name, $path, $callback): void
-    {
-        $this->addRoute($name, $path, 'DELETE', $callback);
-    }
-
-    /**
-     * @param $name
-     * @param $path
-     * @param $callback
-     * @return void
-     */
-    public function patch($name, $path, $callback): void
-    {
-        $this->addRoute($name, $path, 'PATCH', $callback);
-    }
-
-    /**
-     * @return bool
-     */
-    public function resolve(): bool
-    {
-        $method = $this->request->getMethod();
-        $path = $this->request->getPath();
+        $method = $request->getMethod();
+        $path = $request->getPath();
 
         if ($path != '/') {
             $path = rtrim($path, '/');
@@ -123,36 +52,11 @@ class Router
 
         foreach ($this->routes[$method] as $route) {
             if ($route->match($path)) {
-                $this->matchedRoute = $route;
-                $this->matchedParams = $route->findParams($path);
-                $this->matchedController = Route::makeCallable($route->getCallback());
-                return true;
+                return $route;
             }
         }
-        return false;
+
+        throw new HttpNotFoundException('No route found for this request');
     }
 
-    /**
-     * @return Route
-     */
-    public function getMatchedRoute(): Route
-    {
-        return $this->matchedRoute;
-    }
-
-    /**
-     * @return string[]
-     */
-    public function getMatchedParams(): array
-    {
-        return $this->matchedParams;
-    }
-
-    /**
-     * @return array
-     */
-    public function getMatchedController(): array
-    {
-        return $this->matchedController;
-    }
 }

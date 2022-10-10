@@ -3,6 +3,7 @@
 use Core\Http\JsonResponse;
 use Core\Http\Response;
 use Core\Kernel;
+use JetBrains\PhpStorm\NoReturn;
 
 if (!function_exists('app')) {
 
@@ -95,5 +96,21 @@ if (!function_exists('redirect')) {
     function redirect(string $url, int $statusCode = 302): Response
     {
         return new Response('', $statusCode, ['Location' => $url]);
+    }
+}
+
+if (!function_exists('dd')) {
+
+    /**
+     * @param mixed $var
+     */
+    function dd($var): void
+    {
+        $name = 'Debug';
+        // TODO: Implement dd() function.
+        echo "<br><pre>";
+        var_export($var);
+        echo "</pre><br>";
+        die;
     }
 }

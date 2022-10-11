@@ -1,6 +1,9 @@
 <?php
 namespace Core\Http;
 
+use Core\Session\Session;
+use RuntimeException;
+
 class Request
 {
     /**
@@ -27,6 +30,8 @@ class Request
      * @var array
      */
     private array $acceptTypes;
+
+    private Session $session;
 
     /**
      * Construct a new Request object from globals
@@ -178,5 +183,33 @@ class Request
         return $acceptTypes;
     }
 
+    /**
+     * Get the session associated with this request
+     *
+     * @return Session
+     */
+    public function session(): Session
+    {
+        if (!$this->hasSession()) {
+            throw new RuntimeException('No session associated with this request');
+        }
+        return $this->session;
+    }
+
+    public function hasSession(): bool
+    {
+        return isset($this->session);
+    }
+
+    /**
+     * Set the session associated with this request
+     *
+     * @param Session $session
+     * @return void
+     */
+    public function setSession(Session $session): void
+    {
+        $this->session = $session;
+    }
 
 }

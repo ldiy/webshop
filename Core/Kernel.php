@@ -7,8 +7,9 @@ use Core\Http\Request;
 use Core\Http\Response;
 use Core\Middleware\MiddlewareDispatcher;
 use Core\Middleware\RouterMiddleware;
-use Core\Middleware\TestMiddleware;
+use Core\Middleware\SessionMiddleware;
 use Core\Routing\Router;
+use Core\Session\Session;
 use Core\View\Renderer;
 use Throwable;
 
@@ -20,6 +21,7 @@ class Kernel
     private ExceptionHandler $exceptionHandler;
     private Renderer $renderer;
     private Request $request;
+    private Session $session;
     private array $configArray;
 
 
@@ -33,6 +35,8 @@ class Kernel
         $this->router = new Router();
         $this->exceptionHandler = new ExceptionHandler($this->request, $this->config('debug'));
         $this->renderer = new Renderer($this->config('root_dir') . DIRECTORY_SEPARATOR . $this->config('views_dir'));
+        $this->session = new Session($this->config('session'));
+        $this->request->setSession($this->session);
     }
 
     /**
@@ -43,7 +47,7 @@ class Kernel
     public function handleRequest(): Response
     {
         try {
-            $middlewares[] = new TestMiddleware("Kernel");
+            $middlewares[] = new SessionMiddleware();
             $middlewares[] =  new RouterMiddleware($this->router);
             $middlewareDispatcher = new MiddlewareDispatcher($middlewares);
             return $middlewareDispatcher->handle($this->request);
@@ -96,4 +100,14 @@ class Kernel
     {
         return $this->exceptionHandler;
     }
+
+    /**
+     * @return Session
+     */
+    public function getSession(): Session
+    {
+        return $this->session;
+    }
+
+
 }

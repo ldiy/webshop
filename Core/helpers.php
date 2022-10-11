@@ -114,3 +114,14 @@ if (!function_exists('dd')) {
         die;
     }
 }
+
+if (!function_exists('session')) {
+
+    /**
+     * @return Core\Session\Session
+     */
+    function session(): Core\Session\Session
+    {
+        return app()->getSession();
+    }
+}

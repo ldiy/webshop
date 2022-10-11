@@ -11,4 +11,15 @@ return [
 
     // Debug mode
     'debug' => true,
+
+    // Session
+    'session' => [
+        'cookie_name' => 'session',
+        'path' => null,
+        'domain' => null,
+        'secure' => false,
+        'http_only' => true,
+        'same_site' => 'lax',
+        'lifetime' => 120,
+    ],
 ];

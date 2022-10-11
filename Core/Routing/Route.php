@@ -60,6 +60,11 @@ class Route
     public function findParams($path): array
     {
         $params = [];
+
+        if ($path != '/') {
+            $path = rtrim($path, '/');
+        }
+
         preg_match($this->pattern, $path, $params);
         array_shift($params);
         return $params;

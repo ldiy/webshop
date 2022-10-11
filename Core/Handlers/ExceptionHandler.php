@@ -58,6 +58,7 @@ class ExceptionHandler
             'line' => $e->getLine(),
             'code' => $e->getCode(),
             'request' => $this->request->toArray(),
+            'trace' => $e->getTrace(),
             'displayErrors' => $this->displayErrors,
         ];
     }
@@ -94,6 +95,6 @@ class ExceptionHandler
      */
     public function handleJson(array $data): Response
     {
-        return new JsonResponse($data, 500);
+        return new JsonResponse($data, $this->httpStatusCode);
     }
 }

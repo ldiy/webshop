@@ -14,22 +14,16 @@ spl_autoload_register(function ($class_name) {
 require_once 'Core/helpers.php';
 
 // Set the global error and exception handlers
-// This will try to use the kernels exception handler
-// If it fails, it will show a simple error message
+// All exceptions should be already handled by the Kernel
+// But if something goes terribly wrong, we can still catch it here
 set_exception_handler(function (Throwable $e) {
-    try {
-        app()->getExceptionHandler()->handle($e);
-    } catch (Throwable $e2) {
-        echo '500: Internal Server Error';
-    }
+    echo '500: Internal Server Error';
+    die();
 });
 
 set_error_handler(function ($errno, $errstr, $errfile, $errline) {
-    try {
-        app()->getExceptionHandler()->handle(new ErrorException($errstr, 0, $errno, $errfile, $errline));
-    } catch (Throwable $e2) {
-        echo '500: Internal Server Error';
-    }
+    echo '500: Internal Server Error';
+    die();
 });
 
 // Get the config variables from the config file

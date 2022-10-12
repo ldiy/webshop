@@ -2,6 +2,7 @@
 
 namespace Core;
 
+use Core\Database\DB;
 use Core\Handlers\ExceptionHandler;
 use Core\Http\Request;
 use Core\Http\Response;
@@ -32,11 +33,17 @@ class Kernel
         $this->configArray = $config;
 
         $this->request = Request::createFromGlobals();
+
         $this->router = new Router();
+
         $this->exceptionHandler = new ExceptionHandler($this->request, $this->config('debug'));
+
         $this->renderer = new Renderer($this->config('root_dir') . DIRECTORY_SEPARATOR . $this->config('views_dir'));
+
         $this->session = new Session($this->config('session'));
         $this->request->setSession($this->session);
+
+        DB::setConfig($this->config('db'));
     }
 
     /**
@@ -108,6 +115,5 @@ class Kernel
     {
         return $this->session;
     }
-
 
 }

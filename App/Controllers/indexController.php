@@ -1,6 +1,9 @@
 <?php
 namespace App\Controllers;
 
+use Core\Database\DB;
+use Core\Database\QueryBuilder;
+use Core\Http\JsonResponse;
 use Core\Http\Request;
 
 
@@ -8,7 +11,13 @@ class IndexController
 {
     public function index(Request $request)
     {
-        return response('Hello world');
+//        $conn = DB::getInstance();
+//        $query = new QueryBuilder($conn, 'test');
+//        dd($query->whereBetween('co2', 0, 100)->first());
+//        DB::table('test')->where('username', '=', 'boris')->update(['col1' => 'boris2']);
+        DB::table('test')->insert(['username' => 'user_name', 'col1' => 'val3', 'co2' => rand(0,500)]);
+        $data = DB::table('test')->whereBetween('co2', 0, 100)->get();
+        return jsonResponse($data);
     }
 
 

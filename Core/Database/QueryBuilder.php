@@ -2,6 +2,7 @@
 
 namespace Core\Database;
 
+use Core\Exceptions\QueryBuilderException;
 use PDO;
 
 class QueryBuilder
@@ -65,15 +66,25 @@ class QueryBuilder
     private array $bindings = [];
 
     /**
+     * The primary key of the table.
+     *
+     * @var string
+     */
+    private string $primaryKey;
+
+
+    /**
      * Create a new query builder instance.
      *
      * @param DB $connection
      * @param string $table
+     * @param string $primaryKey
      */
-    public function __construct(DB $connection, string $table)
+    public function __construct(DB $connection, string $table, string $primaryKey = 'id')
     {
         $this->connection = $connection;
         $this->table = $table;
+        $this->primaryKey = $primaryKey;
     }
 
     /**
@@ -174,9 +185,14 @@ class QueryBuilder
     public function get(): array
     {
         $this->buildSelect();
-        $statement = $this->connection->prepare($this->query);
-        $statement->execute($this->bindings);
-        return $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        try {
+            $statement = $this->connection->prepare($this->query);
+            $statement->execute($this->bindings);
+            return $statement->fetchAll(PDO::FETCH_ASSOC);
+        } catch (\PDOException $e) {
+            throw new QueryBuilderException("Error with query: " . $this->query, (int)$e->getCode(), $e);
+        }
     }
 
     /**
@@ -184,7 +200,7 @@ class QueryBuilder
      *
      * @return array
      */
-    public function first(): array
+    public function first(): mixed
     {
         $this->limit(1);
         $results = $this->get();
@@ -192,16 +208,33 @@ class QueryBuilder
     }
 
     /**
+     * Find a record by its primary key.
+     *
+     * @param int $id
+     * @return array
+     */
+    public function find(int $id): mixed
+    {
+        $this->where($this->primaryKey, '=', $id);
+        return $this->first();
+    }
+
+    /**
      * Insert a new record into the database.
      *
-     * @param array $data associative array of column => value
-     * @return bool
+     * @param array $data Associative array of column => value
+     * @return int The id of the inserted record
      */
-    public function insert(array $data): bool
+    public function insert(array $data): int
     {
         $this->buildInsert($data);
-        $statement = $this->connection->prepare($this->query);
-        return $statement->execute($this->bindings);
+        try {
+            $statement = $this->connection->prepare($this->query);
+            $statement->execute($this->bindings);
+            return $this->connection->lastInsertId();
+        } catch (\PDOException $e) {
+            throw new QueryBuilderException("Error with query: " . $this->query, (int)$e->getCode(), $e);
+        }
     }
 
     /**
@@ -213,8 +246,23 @@ class QueryBuilder
     public function update(array $data): bool
     {
         $this->buildUpdate($data);
-        $statement = $this->connection->prepare($this->query);
-        return $statement->execute($this->bindings);
+        try {
+            $statement = $this->connection->prepare($this->query);
+            return $statement->execute($this->bindings);
+        } catch (\PDOException $e) {
+            throw new QueryBuilderException("Error with query: " . $this->query, (int)$e->getCode(), $e);
+        }
+    }
+
+    public function delete(): bool
+    {
+        $this->buildDelete();
+        try {
+            $statement = $this->connection->prepare($this->query);
+            return $statement->execute($this->bindings);
+        } catch (\PDOException $e) {
+            throw new QueryBuilderException("Error with query: " . $this->query, (int)$e->getCode(), $e);
+        }
     }
 
     /**
@@ -259,6 +307,17 @@ class QueryBuilder
         $columns = implode(' = ?, ', array_keys($data)) . ' = ?';
         $this->query = 'UPDATE ' . $this->table . ' SET ' . $columns;
         $this->bindings = array_values($data);
+        $this->buildWheres();
+    }
+
+    /**
+     * Build a delete query.
+     *
+     * @return void
+     */
+    private function buildDelete(): void
+    {
+        $this->query = 'DELETE FROM ' . $this->table;
         $this->buildWheres();
     }
 
@@ -327,5 +386,4 @@ class QueryBuilder
 
         return $this;
     }
-
 }

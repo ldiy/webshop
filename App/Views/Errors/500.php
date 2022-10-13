@@ -12,6 +12,9 @@
     <h3>Request: </h3>
     <pre><?php var_export($request) ?></pre>
     <hr>
+    <h3>Previous: </h3>
+    <pre><?php var_export($previous) ?></pre>
+    <hr>
     <h3>Stacktrace: </h3>
     <pre><?php var_export($trace) ?></pre>
 <?php else: ?>

@@ -59,6 +59,7 @@ class ExceptionHandler
             'code' => $e->getCode(),
             'request' => $this->request->toArray(),
             'trace' => $e->getTrace(),
+            'previous' => $e->getPrevious(),
             'displayErrors' => $this->displayErrors,
         ];
     }

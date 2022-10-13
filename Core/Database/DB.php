@@ -41,7 +41,7 @@ class DB extends PDO
         try {
             parent::__construct($dsn, $config['username'], $config['password']);
         } catch (Exception $e) {
-            throw new RuntimeException('Could not connect to database: ' . $e->getMessage());
+            throw new RuntimeException('Could not connect to the given database: ' . $e->getMessage());
         }
     }
 

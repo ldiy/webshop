@@ -3,6 +3,8 @@ return [
     // Root directory of the project relative to this file
     'root_dir' => dirname( __FILE__ ) . '/../',
 
+    'app_url' => 'http://127.0.0.1/webshop',
+
     // Views directory relative to root directory
     'views_dir' => 'App/Views',
 
@@ -15,12 +17,11 @@ return [
     // Session
     'session' => [
         'cookie_name' => 'session',
-        'path' => null,
         'domain' => null,
         'secure' => false,
         'http_only' => true,
         'same_site' => 'lax',
-        'lifetime' => 120,
+        'lifetime' => 0,
     ],
 
     // Database

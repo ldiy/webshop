@@ -95,8 +95,21 @@ if (!function_exists('redirect')) {
      */
     function redirect(string $url, int $statusCode = 302): Response
     {
+        $url = app()->config('app_url') . $url;
         return new Response('', $statusCode, ['Location' => $url]);
     }
+}
+
+if (!function_exists('url')) {
+
+        /**
+        * @param string $path
+        * @return string
+        */
+        function url(string $path): string
+        {
+            return app()->config('app_url') . $path;
+        }
 }
 
 if (!function_exists('dd')) {
@@ -123,5 +136,16 @@ if (!function_exists('session')) {
     function session(): Core\Session\Session
     {
         return app()->getSession();
+    }
+}
+
+if (!function_exists('auth')) {
+
+    /**
+     * @return Core\Auth\Auth
+     */
+    function auth(): Core\Auth\Auth
+    {
+        return app()->getAuth();
     }
 }

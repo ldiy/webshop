@@ -2,10 +2,13 @@
 
 namespace Core;
 
+use Core\Auth\Auth;
+use Core\Auth\UserProvider;
 use Core\Database\DB;
 use Core\Handlers\ExceptionHandler;
 use Core\Http\Request;
 use Core\Http\Response;
+use Core\Middleware\AuthMiddleware;
 use Core\Middleware\MiddlewareDispatcher;
 use Core\Middleware\RouterMiddleware;
 use Core\Middleware\SessionMiddleware;
@@ -23,6 +26,7 @@ class Kernel
     private Renderer $renderer;
     private Request $request;
     private Session $session;
+    private Auth $auth;
     private array $configArray;
 
 
@@ -42,6 +46,8 @@ class Kernel
 
         $this->session = new Session($this->config('session'));
         $this->request->setSession($this->session);
+
+        $this->auth = new Auth($this->session, new UserProvider());
 
         DB::setConfig($this->config('db'));
     }
@@ -114,6 +120,14 @@ class Kernel
     public function getSession(): Session
     {
         return $this->session;
+    }
+
+    /**
+     * @return Auth
+     */
+    public function getAuth(): Auth
+    {
+        return $this->auth;
     }
 
 }

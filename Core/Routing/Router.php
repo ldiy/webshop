@@ -50,6 +50,10 @@ class Router
             $path = rtrim($path, '/');
         }
 
+        if (!isset($this->routes[$method])) {
+            throw new HttpNotFoundException('No route found for this request');
+        }
+
         foreach ($this->routes[$method] as $route) {
             if ($route->match($path)) {
                 return $route;

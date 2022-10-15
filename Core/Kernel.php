@@ -4,12 +4,14 @@ namespace Core;
 
 use Core\Auth\Auth;
 use Core\Auth\UserProvider;
+use Core\Container\Container;
 use Core\Database\DB;
 use Core\Handlers\ExceptionHandler;
 use Core\Http\Request;
 use Core\Http\Response;
 use Core\Middleware\AuthMiddleware;
 use Core\Middleware\MiddlewareDispatcher;
+use Core\Middleware\RouteMiddleware;
 use Core\Middleware\RouterMiddleware;
 use Core\Middleware\SessionMiddleware;
 use Core\Routing\Router;
@@ -17,7 +19,7 @@ use Core\Session\Session;
 use Core\View\Renderer;
 use Throwable;
 
-class Kernel
+class Kernel extends Container
 {
     static Kernel $instance;
 
@@ -28,7 +30,6 @@ class Kernel
     private Session $session;
     private Auth $auth;
     private array $configArray;
-
 
     public function __construct($config)
     {
@@ -50,7 +51,20 @@ class Kernel
         $this->auth = new Auth($this->session, new UserProvider());
 
         DB::setConfig($this->config('db'));
+
+        $this->registerBase();
     }
+
+    public function registerBase()
+    {
+        $this->register($this->request);
+        $this->register($this->router);
+        $this->register($this->exceptionHandler);
+        $this->register($this->renderer);
+        $this->register($this->session);
+        $this->register($this->auth);
+    }
+
 
     /**
      * Handle an incoming HTTP request.
@@ -60,8 +74,12 @@ class Kernel
     public function handleRequest(): Response
     {
         try {
-            $middlewares[] = new SessionMiddleware();
-            $middlewares[] =  new RouterMiddleware($this->router);
+//            $middlewares[] = new SessionMiddleware();
+//            $middlewares[] =  new RouterMiddleware($this->router);
+            $middlewares = [
+                SessionMiddleware::class,
+                RouterMiddleware::class,
+            ];
             $middlewareDispatcher = new MiddlewareDispatcher($middlewares);
             return $middlewareDispatcher->handle($this->request);
         }

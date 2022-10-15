@@ -11,7 +11,7 @@ use Core\Routing\Route;
 
 return [
     Route::get('index', '/', [IndexController::class, 'index'])
-        ->withMiddleware(new AuthMiddleware(auth())),
+        ->withMiddleware(AuthMiddleware::class),
     Route::get('edit', '/edit/{var1}/comments/{var2}', [IndexController::class, 'edit']),
 
     Route::get('login-form', '/login', [LoginController::class, 'show']),

@@ -14,6 +14,7 @@ use Core\Middleware\MiddlewareDispatcher;
 use Core\Middleware\RouteMiddleware;
 use Core\Middleware\RouterMiddleware;
 use Core\Middleware\SessionMiddleware;
+use Core\Middleware\TrimInputMiddleware;
 use Core\Routing\Router;
 use Core\Session\Session;
 use Core\View\Renderer;
@@ -74,9 +75,8 @@ class Kernel extends Container
     public function handleRequest(): Response
     {
         try {
-//            $middlewares[] = new SessionMiddleware();
-//            $middlewares[] =  new RouterMiddleware($this->router);
             $middlewares = [
+                TrimInputMiddleware::class,
                 SessionMiddleware::class,
                 RouterMiddleware::class,
             ];

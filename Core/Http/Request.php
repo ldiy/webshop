@@ -31,7 +31,18 @@ class Request
      */
     private array $acceptTypes;
 
+    private ?string $contentType = null;
+
+    /**
+     * @var Session
+     */
     private Session $session;
+
+    private array $attributes = [];
+
+    private string $body = '';
+
+    private mixed $parsedBody;
 
     /**
      * Construct a new Request object from globals
@@ -43,6 +54,17 @@ class Request
         $this->method = $_SERVER['REQUEST_METHOD'];
         $this->acceptHeader = $_SERVER['HTTP_ACCEPT'];
         $this->acceptTypes = $this->parseAcceptHeader();
+
+        if($this->method === 'POST') {
+            $this->contentType = $_SERVER['CONTENT_TYPE'];
+            $this->body = file_get_contents('php://input');
+            if ($this->contentType === 'application/json') {
+                $this->parsedBody = json_decode($this->body, true);
+            }
+            $this->attributes = $_POST;
+        } else {
+            $this->attributes = $_GET;
+        }
     }
 
     /**
@@ -86,7 +108,7 @@ class Request
     }
 
     /**
-     *
+     * Serialize the request to an array
      *
      * @return array
      */
@@ -98,6 +120,9 @@ class Request
             'method' => $this->method,
             'acceptHeader' => $this->acceptHeader,
             'acceptTypes' => $this->acceptTypes,
+            'contentType' => $this->contentType,
+            'body' => $this->body,
+            'attributes' => $this->attributes,
         ];
     }
 
@@ -196,6 +221,11 @@ class Request
         return $this->session;
     }
 
+    /**
+     * Check if this request has a session
+     *
+     * @return bool
+     */
     public function hasSession(): bool
     {
         return isset($this->session);
@@ -210,6 +240,50 @@ class Request
     public function setSession(Session $session): void
     {
         $this->session = $session;
+    }
+
+    /**
+     * Get a request attribute (GET or POST)
+     *
+     * @param string $key
+     * @param $default
+     * @return mixed|null
+     */
+    public function getAttribute(string $key, $default = null): mixed
+    {
+        return $this->attributes[$key] ?? $default;
+    }
+
+    /**
+     * Get the content type of the request.
+     * This is only set for POST requests
+     *
+     * @return string|null
+     */
+    public function getContentType(): ?string
+    {
+        return $this->contentType;
+    }
+
+    /**
+     * Get the body of the request
+     *
+     * @return string
+     */
+    public function getContent(): string
+    {
+        return $this->body;
+    }
+
+    /**
+     * Get the parsed body.
+     * This will be null if the content type is not application/json
+     *
+     * @return mixed
+     */
+    public function getParsedBody(): mixed
+    {
+        return $this->parsedBody;
     }
 
 }

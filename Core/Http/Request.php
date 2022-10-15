@@ -31,6 +31,9 @@ class Request
      */
     private array $acceptTypes;
 
+    /**
+     * @var string|mixed|null
+     */
     private ?string $contentType = null;
 
     /**
@@ -38,10 +41,19 @@ class Request
      */
     private Session $session;
 
+    /**
+     * @var array
+     */
     private array $attributes = [];
 
+    /**
+     * @var string
+     */
     private string $body = '';
 
+    /**
+     * @var mixed
+     */
     private mixed $parsedBody;
 
     /**
@@ -243,6 +255,27 @@ class Request
     }
 
     /**
+     * Get all the attributes
+     *
+     * @return array
+     */
+    public function getAttributes(): array
+    {
+        return $this->attributes;
+    }
+
+    /**
+     * Set all the attributes
+     *
+     * @param array $attributes
+     * @return void
+     */
+    public function setAttributes(array $attributes): void
+    {
+        $this->attributes = $attributes;
+    }
+
+    /**
      * Get a request attribute (GET or POST)
      *
      * @param string $key
@@ -252,6 +285,18 @@ class Request
     public function getAttribute(string $key, $default = null): mixed
     {
         return $this->attributes[$key] ?? $default;
+    }
+
+    /**
+     * Set a request attribute
+     *
+     * @param string $key
+     * @param $value
+     * @return void
+     */
+    public function setAttribute(string $key, $value): void
+    {
+        $this->attributes[$key] = $value;
     }
 
     /**

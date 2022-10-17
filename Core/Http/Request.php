@@ -1,7 +1,9 @@
 <?php
 namespace Core\Http;
 
+use Core\Exceptions\ValidationException;
 use Core\Session\Session;
+use Core\Validation\Validator;
 use RuntimeException;
 
 class Request
@@ -20,6 +22,7 @@ class Request
      * @var string
      */
     private string $method;
+
 
     /**
      * @var string
@@ -56,6 +59,8 @@ class Request
      */
     private mixed $parsedBody;
 
+    private ?string $referer;
+
     /**
      * Construct a new Request object from globals
      */
@@ -66,6 +71,7 @@ class Request
         $this->method = $_SERVER['REQUEST_METHOD'];
         $this->acceptHeader = $_SERVER['HTTP_ACCEPT'];
         $this->acceptTypes = $this->parseAcceptHeader();
+        $this->referer = $_SERVER['HTTP_REFERER'] ?? null;
 
         if($this->method === 'POST') {
             $this->contentType = $_SERVER['CONTENT_TYPE'];
@@ -329,6 +335,27 @@ class Request
     public function getParsedBody(): mixed
     {
         return $this->parsedBody;
+    }
+
+    /**
+     * Validate the request attributes against the given rules
+     *
+     * @throws ValidationException
+     */
+    public function validate(array $rules): void
+    {
+        $validator = new Validator($this->attributes, $rules);
+        $validator->validate();
+    }
+
+    /**
+     * Get the http referer header
+     *
+     * @return string|null
+     */
+    public function getReferer(): ?string
+    {
+        return $this->referer;
     }
 
 }

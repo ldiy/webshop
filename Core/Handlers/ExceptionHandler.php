@@ -3,6 +3,7 @@
 namespace Core\Handlers;
 
 use Core\Exceptions\HttpException;
+use Core\Exceptions\ValidationException;
 use Core\Http\JsonResponse;
 use Core\Http\Request;
 use Core\Http\Response;
@@ -33,6 +34,10 @@ class ExceptionHandler
 
         if ($e instanceof HttpException) {
             $this->httpStatusCode = $e->getStatusCode();
+        }elseif ($e instanceof ValidationException) {
+            $this->httpStatusCode = $e->statusCode;
+            // TODO: add validation errors to $data and return to previous page
+            return $this->validationExceptionToResponse($e);
         }
 
         if ($this->request->acceptsHtml()) {
@@ -98,4 +103,30 @@ class ExceptionHandler
     {
         return new JsonResponse($data, $this->httpStatusCode);
     }
+
+    /**
+     * Convert a ValidationException to a Response
+     *
+     * @param ValidationException $e
+     * @return JsonResponse|Response
+     */
+    private function validationExceptionToResponse(ValidationException $e): JsonResponse|Response
+    {
+        if ($this->request->acceptsHtml()) {
+            $this->request->session()->flash('errors', $e->getErrors());
+            $this->request->session()->flash('old', $this->request->getAttributes());
+            $referer = $this->request->getReferer();
+            if (is_null($referer)) {
+                return redirect('/');  // TODO: make generic previous page url function (save in session?)
+            }
+            return new Response('', 302, ['Location' => $referer]);
+        }else {
+            return new JsonResponse([
+                'message' => $e->getMessage(),
+                'errors' => $e->getErrors(),
+            ], $e->statusCode);
+        }
+    }
+
+
 }

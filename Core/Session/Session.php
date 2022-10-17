@@ -152,4 +152,44 @@ class Session
         session_regenerate_id();
     }
 
+    /**
+     * Flash a value to the session for one request
+     *
+     * @param string $key
+     * @param $value
+     * @return void
+     */
+    public function flash(string $key, $value): void
+    {
+        $this->set($key, $value);
+        $flash = $this->get('flash_new') ?? [];
+        $flash[] = $key;
+        $this->set('flash_new', $flash);
+    }
+
+    /**
+     * Overwrite the flashed data from the previous request with the new one.
+     *
+     * @return void
+     */
+    public function ageFlashData(): void
+    {
+        $flash = $this->get('flash_new') ?? [];
+        $this->set('flash_old', $flash);
+        $this->set('flash_new', []);
+    }
+
+    /**
+     * Remove the old flashed data from the session.
+     *
+     * @return void
+     */
+    public function removeOldFlashData(): void
+    {
+        $flash = $this->get('flash_old') ?? [];
+        foreach ($flash as $key) {
+            $this->remove($key);
+        }
+        $this->set('flash_old', []);
+    }
 }

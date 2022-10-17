@@ -11,7 +11,20 @@ class SessionMiddleware implements MiddlewareInterface
 {
     public function process(Request $request, RequestHandlerInterface $handler): Response
     {
-        $request->session()->start();
-        return $handler->handle($request);
+        // Start the session
+        $session = $request->session();
+        $session->start();
+
+        // Handle the request and store the response for later
+        $response = $handler->handle($request);
+
+        // Remove the flashed data from the previous request
+        $session->removeOldFlashData();
+
+        // Move the new flashed data to the old data
+        $session->ageFlashData();
+
+        // Return the response
+        return $response;
     }
 }

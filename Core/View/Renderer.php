@@ -28,6 +28,12 @@ class Renderer
             throw new \InvalidArgumentException('View file "' . $viewFile . '" not found');
         }
 
+        $errors = session()->get('errors') ?? [];
+
+        $params = array_merge($params, [
+            'errors' => $errors,
+        ]);
+
         try {
             ob_start();
             $this->protectedIncludeScope($viewFile, $params);

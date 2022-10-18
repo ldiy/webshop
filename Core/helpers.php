@@ -149,3 +149,27 @@ if (!function_exists('auth')) {
         return app()->getAuth();
     }
 }
+
+if (!function_exists('old')) {
+
+    /**
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    function old(string $key, mixed $default = null): mixed
+    {
+        return session()->get('old')[$key] ?? $default;
+    }
+}
+
+if (!function_exists('logger')) {
+
+    /**
+     * @return Core\Logging\Logger
+     */
+    function logger(): Core\Logging\Logger
+    {
+        return app()->getLogger();
+    }
+}

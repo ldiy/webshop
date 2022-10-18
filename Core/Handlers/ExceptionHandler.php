@@ -38,6 +38,8 @@ class ExceptionHandler
             $this->httpStatusCode = $e->statusCode;
             // TODO: add validation errors to $data and return to previous page
             return $this->validationExceptionToResponse($e);
+        }else {
+            $this->logException($e);
         }
 
         if ($this->request->acceptsHtml()) {
@@ -128,5 +130,21 @@ class ExceptionHandler
         }
     }
 
-
+    /**
+     * Log the exception
+     *
+     * @param Throwable $e
+     * @return void
+     */
+    private function logException(Throwable $e): void
+    {
+        logger()->error($e->getMessage(), [
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+            'code' => $e->getCode(),
+            'request' => $this->request->toArray(),
+            'trace' => $e->getTrace(),
+            'previous' => $e->getPrevious(),
+        ]);
+    }
 }

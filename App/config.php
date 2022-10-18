@@ -34,4 +34,14 @@ return [
         'password' => '',
         'charset' => 'utf8mb4',
     ],
+
+    // Logging
+    'logging' => [
+        // Path to the log file relative to root directory
+        'path' => 'storage/logs/log.txt',
+
+        // Log level, one of: emergency, alert, critical, error, warning, notice, info, debug
+        // Everything above or equal to the given level will be logged
+        'level' => 'debug',
+    ],
 ];

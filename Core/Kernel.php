@@ -9,6 +9,7 @@ use Core\Database\DB;
 use Core\Handlers\ExceptionHandler;
 use Core\Http\Request;
 use Core\Http\Response;
+use Core\Logging\Logger;
 use Core\Middleware\AuthMiddleware;
 use Core\Middleware\MiddlewareDispatcher;
 use Core\Middleware\RouteMiddleware;
@@ -30,6 +31,7 @@ class Kernel extends Container
     private Request $request;
     private Session $session;
     private Auth $auth;
+    private Logger $logger;
     private array $configArray;
 
     public function __construct($config)
@@ -41,6 +43,11 @@ class Kernel extends Container
         $this->request = Request::createFromGlobals();
 
         $this->router = new Router();
+
+        $this->logger = new Logger(
+            $this->config('logging')['level'],
+            $this->config('root_dir') . DIRECTORY_SEPARATOR . $this->config('logging')['path']
+        );
 
         $this->exceptionHandler = new ExceptionHandler($this->request, $this->config('debug'));
 
@@ -64,6 +71,7 @@ class Kernel extends Container
         $this->register($this->renderer);
         $this->register($this->session);
         $this->register($this->auth);
+        $this->register($this->logger);
     }
 
 
@@ -146,6 +154,14 @@ class Kernel extends Container
     public function getAuth(): Auth
     {
         return $this->auth;
+    }
+
+    /**
+     * @return Logger
+     */
+    public function getLogger(): Logger
+    {
+        return $this->logger;
     }
 
 }

@@ -35,7 +35,7 @@ abstract class Model
 
     /**
      * The keys of the attributes array that have been changed compared to the database.
-     *
+     * TODO: all attributes ara always changed when the model is loaded from the database.
      * @var array
      */
     private array $changedAttributes = [];
@@ -54,6 +54,17 @@ abstract class Model
         if (!isset($this::$table)) {
             throw new RuntimeException('Model table not set');
         }
+    }
+
+    /**
+     * Get the value of an attribute.
+     *
+     * @param $name
+     * @return mixed
+     */
+    public function __get($name)
+    {
+        return $this->getAttribute($name);
     }
     
     /**
@@ -86,7 +97,7 @@ abstract class Model
      */
     public function getAttribute(string $key): mixed
     {
-        return $this->attributes[$key];
+        return $this->attributes[$key] ?? null;
     }
 
     /**

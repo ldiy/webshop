@@ -173,3 +173,20 @@ if (!function_exists('logger')) {
         return app()->getLogger();
     }
 }
+
+if (!function_exists('template')) {
+
+    /**
+     * @param string $template_name
+     * @param array|null $vars
+     * @return void
+     */
+    function template(string $template_name, ?array $vars = null): void
+    {
+        if (!is_null($vars)) {
+            extract($vars);
+        }
+
+        include(app()->config('root_dir') . DIRECTORY_SEPARATOR . app()->config('templates_dir') . DIRECTORY_SEPARATOR . $template_name . '.php');
+    }
+}

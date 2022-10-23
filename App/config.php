@@ -8,6 +8,9 @@ return [
     // Views directory relative to root directory
     'views_dir' => 'App/Views',
 
+    // Views directory relative to root directory
+    'templates_dir' => 'App/Views/templates',
+
     // Environment
     'env' => 'dev',
 
@@ -29,7 +32,7 @@ return [
         'driver' => 'mysql',
         'host' => 'localhost',
         'port' => 3306,
-        'database' => 'test',
+        'database' => 'lshop',
         'username' => 'root',
         'password' => '',
         'charset' => 'utf8mb4',

@@ -13,12 +13,6 @@ class ValidationException extends \Exception
      */
     private array $errors;
 
-    /**
-     * The used validator.
-     *
-     * @var Validator
-     */
-    private Validator $validator;
 
     /**
      * The http status code to use in the handler.
@@ -28,12 +22,24 @@ class ValidationException extends \Exception
     public int $statusCode = 422;
 
 
-    public function __construct(Validator $validator)
+    public function __construct(Validator $validator = null)
     {
-        $this->validator = $validator;
-        $this->errors = $validator->getErrors();
+        if (!is_null($validator)) {
+            $this->errors = $validator->getErrors();
+        }
 
         parent::__construct('The given data was invalid.');
+    }
+
+    /**
+     * @param array $messages
+     * @return static
+     */
+    public static function fromMessages(array $messages): static
+    {
+        $self = new static;
+        $self->errors = $messages;
+        return $self;
     }
 
     /**
@@ -44,5 +50,10 @@ class ValidationException extends \Exception
     public function getErrors(): array
     {
         return $this->errors;
+    }
+
+    public function setErrors(array $errors): void
+    {
+        $this->errors = $errors;
     }
 }

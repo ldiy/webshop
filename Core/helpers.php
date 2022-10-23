@@ -153,13 +153,16 @@ if (!function_exists('auth')) {
 if (!function_exists('old')) {
 
     /**
+     * Get old input value, if exists
+     * htmlspecialchar() is used to prevent XSS
+     *
      * @param string $key
      * @param mixed $default
      * @return mixed
      */
     function old(string $key, mixed $default = null): mixed
     {
-        return session()->get('old')[$key] ?? $default;
+        return htmlspecialchars(session()->get('old')[$key] ?? $default);
     }
 }
 

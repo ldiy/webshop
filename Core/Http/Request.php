@@ -294,6 +294,18 @@ class Request
     }
 
     /**
+     * Get a request attribute (GET or POST)
+     *
+     * @param string $key
+     * @param $default
+     * @return mixed
+     */
+    public function input(string $key, $default = null): mixed
+    {
+        return $this->attributes[$key] ?? $default;
+    }
+
+    /**
      * Set a request attribute
      *
      * @param string $key

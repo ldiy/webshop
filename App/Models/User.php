@@ -8,8 +8,8 @@ use Core\Model\Model;
 
 class User extends Model implements UserInterface
 {
-    static string $table = 'test';
-    static string $authIdentifierName = 'username';
+    static string $table = 'user';
+    static string $authIdentifierName = 'email';
 
     protected array $hidden = [
         'password'

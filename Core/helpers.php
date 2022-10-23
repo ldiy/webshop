@@ -154,7 +154,7 @@ if (!function_exists('old')) {
 
     /**
      * Get old input value, if exists
-     * htmlspecialchar() is used to prevent XSS
+     * htmlspecialchars() is used to prevent XSS
      *
      * @param string $key
      * @param mixed $default
@@ -162,7 +162,11 @@ if (!function_exists('old')) {
      */
     function old(string $key, mixed $default = null): mixed
     {
-        return htmlspecialchars(session()->get('old')[$key] ?? $default);
+        $old = session()->get('old')[$key] ?? $default;
+        if (is_string($old)) {
+            return htmlspecialchars($old);
+        }
+        return $old;
     }
 }
 

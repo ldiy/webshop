@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Core\Exceptions\ValidationException;
 use Core\Http\Request;
@@ -47,7 +48,7 @@ class RegisterController
             'last_name' => $request->input('last_name'),
             'email' => $request->input('email'),
             'password' => password_hash($request->input('password'), PASSWORD_DEFAULT),
-            'role_id' => 2, // TODO: use the user role id
+            'role_id' => Role::getByName('user')->id,
         ]);
 
         return redirect('/login');

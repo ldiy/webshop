@@ -6,6 +6,16 @@ use Core\Auth\UserInterface;
 use Core\Database\DB;
 use Core\Model\Model;
 
+/**
+ * Class User
+ *
+ * @property int $id
+ * @property string $first_name
+ * @property string $last_name
+ * @property string $email
+ * @property string $password
+ * @property int $role_id
+ */
 class User extends Model implements UserInterface
 {
     static string $table = 'user';
@@ -56,5 +66,15 @@ class User extends Model implements UserInterface
         }
 
         return new static($result);
+    }
+
+    /**
+     * Get the role that this user has.
+     *
+     * @return Role
+     */
+    public function role(): Role
+    {
+        return $this->belongsTo(Role::class, 'role_id');
     }
 }

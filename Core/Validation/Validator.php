@@ -69,13 +69,30 @@ class Validator
 
     /**
      * Required validator.
-     * The field must be present and not be empty.
+     * The field must be present (not null).
      *
      * @param $value
      * @return bool
      * @throws ValidationRuleException
      */
     public static function required($value): bool
+    {
+        if (is_null($value)) {
+            throw new ValidationRuleException('This field is required');
+        }
+
+        return true;
+    }
+
+    /**
+     * Not empty validator.
+     * The field must be present and not be empty.
+     *
+     * @param $value
+     * @return bool
+     * @throws ValidationRuleException
+     */
+    public static function notEmpty($value): bool
     {
         if (empty($value)) {
             throw new ValidationRuleException('This field is required');
@@ -226,7 +243,7 @@ class Validator
         $result =  DB::table($table)->where($column, '=', $value)->first();
 
         if ($result) {
-            throw new ValidationRuleException("This {$value} already exists");
+            throw new ValidationRuleException("This {$column} already exists");
         }
 
         return true;

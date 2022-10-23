@@ -265,4 +265,37 @@ abstract class Model
         
         return new static($result);
     }
+
+    /**
+     * Define a one-to-many relationship.
+     *
+     * @param string $model
+     * @param string $foreignKey
+     * @param string|null $localKey
+     * @return array
+     */
+    public function hasMany(string $model, string $foreignKey, string $localKey = null): array
+    {
+        if (!is_subclass_of($model, Model::class)) {
+            throw new RuntimeException('Class must be a subclass of Model');
+        }
+        $localKey = $localKey ?? $this->getPrimaryKey();
+        return $model::where($foreignKey, '=', $this->getAttribute($localKey));
+    }
+
+    /**
+     * Define a one-to-one relationship.
+     *
+     * @param string $model
+     * @param string $foreignKey
+     * @return Model|null
+     */
+    public function belongsTo(string $model, string $foreignKey): ?Model
+    {
+        if (!is_subclass_of($model, Model::class)) {
+            throw new RuntimeException('Class must be a subclass of Model');
+        }
+        $foreignKey = $foreignKey ?? $model::$primaryKey;
+        return $model::find($this->getAttribute($foreignKey));
+    }
 }

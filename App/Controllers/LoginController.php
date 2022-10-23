@@ -64,6 +64,6 @@ class LoginController
     public function logout(Request $request): Response
     {
         auth()->logout();
-        return redirect('/login');
+        return redirect('/');
     }
 }

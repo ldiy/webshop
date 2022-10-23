@@ -8,7 +8,7 @@
 RewriteEngine On
 
 # Don't rewrite the resources directory
-RewriteRule ^(recources) - [L]
+RewriteRule ^(resources) - [L]
 
 
 RewriteCond %{REQUEST_FILENAME} !index.php

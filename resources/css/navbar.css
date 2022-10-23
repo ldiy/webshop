@@ -1,0 +1,23 @@
+.search-bar {
+    width: 50%;
+}
+
+.cart-icon {
+    color: #000000;
+}
+
+.navbar {
+    border-bottom: 1px solid lightgray;
+    background-color: white;
+}
+
+.search-icon {
+    /*color: #07377f;*/
+    margin-left: -50px;
+    border: 0 !important;
+}
+
+.search-icon:hover {
+    color: #0d6efd;
+    background-color: transparent;
+}

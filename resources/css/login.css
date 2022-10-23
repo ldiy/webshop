@@ -1,0 +1,7 @@
+.round-icon {
+    border-radius: 50%;
+    background-color: #0d6efd;
+    color: #ffffff;
+    padding: 20px;
+    box-shadow: gray 0 0 5px;
+}

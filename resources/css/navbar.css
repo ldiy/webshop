@@ -1,5 +1,6 @@
 .search-bar {
     width: 50%;
+    height: 50px;
 }
 
 .cart-icon {
@@ -8,11 +9,10 @@
 
 .navbar {
     border-bottom: 1px solid lightgray;
-    background-color: white;
+    background-color: #f0f5ff;
 }
 
 .search-icon {
-    /*color: #07377f;*/
     margin-left: -50px;
     border: 0 !important;
 }
@@ -20,4 +20,9 @@
 .search-icon:hover {
     color: #0d6efd;
     background-color: transparent;
+}
+
+.search-bar input {
+    border-radius: 25px;
+    font-size: 1.5rem;
 }

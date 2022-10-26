@@ -1,0 +1,9 @@
+.product-card:hover, .category-card:hover {
+    box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+
+.product-card .card-img-top, .category-card .card-img-top {
+    object-fit: contain;
+    height: 200px;
+}

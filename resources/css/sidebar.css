@@ -1,0 +1,24 @@
+.sidebar {
+    /*background-color: gray;*/
+    min-width: 300px;
+    max-width: 300px;
+    padding-right: 30px;
+    /*width: 300px;*/
+}
+
+.category-link {
+    color: #000000;
+    font-size: 1.1rem;
+    text-decoration: none;
+    display: block;
+    padding: 2px 0 0;
+}
+
+.category-link:hover {
+    color: #0d6efd;
+    text-decoration: underline;
+}
+
+.delimiter {
+    margin: 10px 0;
+}

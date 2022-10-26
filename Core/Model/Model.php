@@ -267,6 +267,21 @@ abstract class Model
     }
 
     /**
+     * Get all the models from the database.
+     *
+     * @return array
+     */
+    public static function all(): array
+    {
+        $models = [];
+        $result = DB::table(static::$table)->get();
+        foreach ($result as $attributes) {
+            $models[] = new static($attributes);
+        }
+        return $models;
+    }
+
+    /**
      * Define a one-to-many relationship.
      *
      * @param string $model

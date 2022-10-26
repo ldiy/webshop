@@ -108,7 +108,7 @@ template('head', ['title' => $title]);
                     <?php foreach ($products as $product): ?>
                         <div class="col mb-3">
                             <div class="card product-card h-100" onclick="location.href='<?php echo url('/product/' . $product->id); ?>'">
-                                <img class="card-img-top" src="<?php echo url($product->thumbnail_path); ?>" alt="<?php echo $product->name; ?>" />
+                                <img class="card-img-top" src="<?php echo url($product->thumbnail_path); ?>" alt="<?php echo $product->name; ?>">
                                 <?php if($product->stock_quantity === 0): ?>
                                 <h5><span class="position-absolute top-0 start-50 translate-middle badge bg-danger">Out of stock</span></h5>
                                 <?php endif; ?>

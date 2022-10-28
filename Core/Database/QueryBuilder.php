@@ -3,6 +3,8 @@
 namespace Core\Database;
 
 use Core\Exceptions\QueryBuilderException;
+use Core\Model\Model;
+use http\Exception\RuntimeException;
 use PDO;
 
 class QueryBuilder
@@ -72,6 +74,13 @@ class QueryBuilder
      */
     private string $primaryKey;
 
+    /**
+     * The model class that should be returned.
+     *
+     * @var string
+     */
+    private string $model;
+
 
     /**
      * Create a new query builder instance.
@@ -85,6 +94,12 @@ class QueryBuilder
         $this->connection = $connection;
         $this->table = $table;
         $this->primaryKey = $primaryKey;
+    }
+
+    public function withModel(string $modelClass): self
+    {
+        $this->model = $modelClass;
+        return $this;
     }
 
     /**
@@ -189,7 +204,20 @@ class QueryBuilder
         try {
             $statement = $this->connection->prepare($this->query);
             $statement->execute($this->bindings);
-            return $statement->fetchAll(PDO::FETCH_ASSOC);
+            $result = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+            // If no model is set, return the result as is.
+            if (!isset($this->model)) {
+                return $result;
+            }
+
+            // Check if the model class exists and is a subclass of Model.
+            if (!class_exists($this->model) || !is_subclass_of($this->model, Model::class)) {
+                throw new QueryBuilderException("Model class {$this->model} does not exist or does not extend Model class.");
+            }
+            return array_map(function ($row) {
+                return new $this->model($row);
+            }, $result);
         } catch (\PDOException $e) {
             throw new QueryBuilderException("Error with query: " . $this->query, (int)$e->getCode(), $e);
         }
@@ -198,22 +226,25 @@ class QueryBuilder
     /**
      * Execute the query as a "select" statement and return the first result.
      *
-     * @return array
+     * @return Model|array|null
      */
-    public function first(): mixed
+    public function first(): Model|array|null
     {
         $this->limit(1);
         $results = $this->get();
-        return $results ? $results[0] : [];
+        if (!isset($this->model))
+            return $results ? $results[0] : [];
+        else
+            return $results ? $results[0] : null;
     }
 
     /**
      * Find a record by its primary key.
      *
      * @param int $id
-     * @return array
+     * @return Model|array|null
      */
-    public function find(int $id): mixed
+    public function find(int $id): Model|array|null
     {
         $this->where($this->primaryKey, '=', $id);
         return $this->first();

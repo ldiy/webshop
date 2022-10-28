@@ -237,16 +237,11 @@ abstract class Model
      * @param string $column
      * @param string $operator
      * @param string $value
-     * @return array
+     * @return QueryBuilder
      */
-    public static function where(string $column, string $operator, string $value): array
+    public static function where(string $column, string $operator, string $value): QueryBuilder
     {
-        $models = [];
-        $result = DB::table(static::$table)->where($column, $operator, $value)->get();
-        foreach ($result as $attributes) {
-            $models[] = new static($attributes);
-        }
-        return $models;
+        return DB::table(static::$table)->withModel(static::class)->where($column, $operator, $value);
     }
 
     /**
@@ -257,13 +252,7 @@ abstract class Model
      */
     public static function find(int $id): ?self
     {
-        $result = DB::table(static::$table)->where(static::$primaryKey, '=', $id)->first();
-        
-        if (empty($result)) {
-            return null;
-        }
-        
-        return new static($result);
+        return DB::table(static::$table)->withModel(static::class)->where(static::$primaryKey, '=', $id)->first();
     }
 
     /**
@@ -273,12 +262,7 @@ abstract class Model
      */
     public static function all(): array
     {
-        $models = [];
-        $result = DB::table(static::$table)->get();
-        foreach ($result as $attributes) {
-            $models[] = new static($attributes);
-        }
-        return $models;
+        return DB::table(static::$table)->withModel(static::class)->get();
     }
 
     /**
@@ -287,9 +271,9 @@ abstract class Model
      * @param string $model
      * @param string $foreignKey
      * @param string|null $localKey
-     * @return array
+     * @return QueryBuilder
      */
-    public function hasMany(string $model, string $foreignKey, string $localKey = null): array
+    public function hasMany(string $model, string $foreignKey, string $localKey = null): QueryBuilder
     {
         if (!is_subclass_of($model, Model::class)) {
             throw new RuntimeException('Class must be a subclass of Model');

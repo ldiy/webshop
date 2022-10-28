@@ -24,7 +24,7 @@ class ProductController
         // TODO: orwhere description
         // TODO: pagination
         $search = $request->input('search');
-        $products = Product::where('name', 'LIKE', "%$search%");
+        $products = Product::where('name', 'LIKE', "%$search%")->get();
 
         if (count($products) === 1) {
             return redirect('/product/' . $products[0]->id);

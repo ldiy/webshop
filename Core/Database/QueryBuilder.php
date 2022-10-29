@@ -166,6 +166,16 @@ class QueryBuilder
         return $this;
     }
 
+    public function whereIn(string $column, array $values): self
+    {
+        if (empty($values)) {
+            throw new QueryBuilderException('The values array cannot be empty.');
+        }
+        $type = 'in';
+        $this->wheres[] = compact('type', 'column', 'values');
+        return $this;
+    }
+
     /**
      * Add an "order by" clause to the query.
      * Multiple orderings can be added.
@@ -205,7 +215,6 @@ class QueryBuilder
             $statement = $this->connection->prepare($this->query);
             $statement->execute($this->bindings);
             $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-
             // If no model is set, return the result as is.
             if (!isset($this->model)) {
                 return $result;
@@ -372,6 +381,10 @@ class QueryBuilder
                     $this->query .= $where['column'] . ' BETWEEN ? AND ?';
                     $this->bindings[] = $where['value1'];
                     $this->bindings[] = $where['value2'];
+                } elseif ($where['type'] === 'in') {
+                    $repeatCnt = max(count($where['values']) - 1, 0);
+                    $this->query .= $where['column'] . ' IN (' . str_repeat('?, ', $repeatCnt) . '?)';
+                    $this->bindings = array_merge($this->bindings, $where['values']);
                 }
             } else {
                 $this->query .= $where['column'] . ' ' . $where['operator'] . ' ?';

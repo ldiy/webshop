@@ -44,7 +44,11 @@ class Auth
         $id = $this->session->get(self::AUTH_SESSION_KEY);
 
         if (!is_null($id)) {
-            return $this->user = $this->userProvider->retrieveById($id);
+            $user = $this->userProvider->retrieveById($id);
+            if (!is_null($user)) {
+                $this->user = $user;
+                return $user;
+            }
         }
 
         return null;

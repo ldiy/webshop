@@ -35,7 +35,7 @@
 
                                 <!-- Email -->
                                 <div class="mb-3 form-floating">
-                                    <input class="form-control" type="text" name="email" id="email" placeholder="Email" value="<?php echo old('email'); ?>" maxlength="319" required>
+                                    <input class="form-control" type="email" name="email" id="email" placeholder="Email" value="<?php echo old('email'); ?>" maxlength="319" required>
                                     <label class="form-label" for="email">Email address</label>
                                     <div class="invalid-feedback">
                                         Enter a valid email address

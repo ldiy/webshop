@@ -42,7 +42,7 @@ class ExceptionHandler
             $this->logException($e);
         }
 
-        if ($this->request->acceptsHtml()) {
+        if ($this->request->prefersHtml()) {
             return $this->handleHtml($data);
         }elseif ($this->request->acceptsJson()) {
             return $this->handleJson($data);
@@ -114,7 +114,7 @@ class ExceptionHandler
      */
     private function validationExceptionToResponse(ValidationException $e): JsonResponse|Response
     {
-        if ($this->request->acceptsHtml()) {
+        if ($this->request->prefersHtml()) {
             $this->request->session()->flash('errors', $e->getErrors());
             $this->request->session()->flash('old', $this->request->getAttributes());
             $referer = $this->request->getReferer();

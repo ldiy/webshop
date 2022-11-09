@@ -5,6 +5,7 @@ namespace Core\Validation;
 use Core\Database\DB;
 use Core\Exceptions\ValidationException;
 use Core\Exceptions\ValidationRuleException;
+use Core\Http\UploadedFile;
 
 class Validator
 {
@@ -244,6 +245,75 @@ class Validator
 
         if ($result) {
             throw new ValidationRuleException("This {$column} already exists");
+        }
+
+        return true;
+    }
+
+    /**
+     * Array validator.
+     * The value must be an array.
+     *
+     * @param $value
+     * @return bool
+     * @throws ValidationRuleException
+     */
+    public static function isArray($value): bool
+    {
+        if (!is_array($value)) {
+            throw new ValidationRuleException("This field must be an array");
+        }
+
+        return true;
+    }
+
+    /**
+     * File validator.
+     * The value must be a file.
+     *
+     * @param $value
+     * @return bool
+     * @throws ValidationRuleException
+     */
+    public static function file($value): bool
+    {
+        if (!($value instanceof UploadedFile) || !$value->isValid()) {
+            throw new ValidationRuleException("This field must be a file");
+        }
+
+        return true;
+    }
+
+    /**
+     * Image validator.
+     * The value must be an image.
+     *
+     * @param $value
+     * @return bool
+     * @throws ValidationRuleException
+     */
+    public static function image($value): bool
+    {
+        if (!exif_imagetype($value->getPathname())) {
+            throw new ValidationRuleException("This field must be an image");
+        }
+
+        return true;
+    }
+
+    /**
+     * Max number of digits validator..
+     *
+     * @param $value
+     * @param int $max
+     * @return bool
+     * @throws ValidationRuleException
+     */
+    public static function maxDigits($value, int $max): bool
+    {
+        // TODO: check for decimal point
+        if (strlen($value) > $max) {
+            throw new ValidationRuleException("This field must not be more than {$max} digits long");
         }
 
         return true;

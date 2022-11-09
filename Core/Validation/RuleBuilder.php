@@ -16,6 +16,10 @@ use Core\Exceptions\ValidationRuleException;
  * @method self maxLength(int $max)
  * @method self unique(string $table, string $column = null)
  * @method self exists(string $table, string $column = null)
+ * @method self isArray()
+ * @method self file()
+ * @method self image()
+ * @method self maxDigits(int $max)
  */
 class RuleBuilder
 {
@@ -105,11 +109,11 @@ class RuleBuilder
      * Run a value through this validation rule chain.
      *
      * @param Validator $validator
-     * @param string|null $value
+     * @param mixed $value
      * @return bool
      * @throws ValidationRuleException
      */
-    public function validate(Validator $validator, ?string $value): bool
+    public function validate(Validator $validator, mixed $value): bool
     {
         if (($this->nullable || $this->optional) && $value === null) {
             return true;

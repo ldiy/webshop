@@ -11,6 +11,8 @@ use Core\Model\Model;
  * @property string $name
  * @property string $description
  * @property string $thumbnail_path
+ * @property int $parent_id
+ * @property bool $display
  */
 class Category extends Model
 {
@@ -18,13 +20,24 @@ class Category extends Model
     public static string $primaryKey = 'id';
 
     /**
-     * Get the products that belong to this category.
+     * Get the products that belong to the category and its subcategories recursively.
      *
-     * @return array<Product>
+     * @param bool $searchSubcategories
+     * @return array
      */
-    public function products(): array
+    public function products(bool $searchSubcategories = true): array
     {
-        return $this->hasManyT;
+        $products = $this->belongsToMany(Product::class, 'category_product', 'category_id', 'product_id');
+
+        if ($searchSubcategories) {
+            // Get the subcategories products recursively.
+            $subcategories = $this->hasMany(Category::class, 'parent_id');
+            foreach ($subcategories as $subcategory) {
+                $products = array_merge($products, $subcategory->products());
+            }
+        }
+
+        return $products;
     }
 
     /**
@@ -35,7 +48,27 @@ class Category extends Model
      */
     public static function getByName(string $name): ?Category
     {
-        $categories = self::where('name', '=', $name);
-        return $categories[0] ?? null;
+        return self::where('name', '=', $name)->first();
     }
+
+    /**
+     * Get the parent category.
+     *
+     * @return Category|null
+     */
+    public function parent(): ?Category
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
+
+    /**
+     * Get the subcategories.
+     *
+     * @return array
+     */
+    public function subcategories(): array
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
+
 }

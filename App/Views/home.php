@@ -17,10 +17,12 @@
         <div class="container px-4 px-lg-5 mt-5">
             <h2 class="mb-4">Categories</h2>
             <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-                <?php foreach ($categories as $category): ?>
+                <?php foreach ($categories as $category):
+                    $thumbnail = is_null($category->thumbnail_path) ? 'https://via.placeholder.com/500' : url($category->thumbnail_path);
+                    ?>
                     <div class="col mb-5">
                         <div class="card category-card h-100" onclick="location.href='<?php echo url('/category/' . $category->id); ?>'">
-                            <img class="card-img-top" src="<?php echo url($category->thumbnail_path); ?>" alt="<?php echo $category->name; ?>">
+                            <img class="card-img-top" src="<?php echo $thumbnail; ?>" alt="<?php echo $category->name; ?>">
                             <div class="card-body">
                             </div>
                             <div class="card-footer text-center">

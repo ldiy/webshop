@@ -5,52 +5,80 @@ namespace App\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use Core\Exceptions\HttpNotFoundException;
+use Core\Exceptions\ValidationException;
 use Core\Http\Request;
 use Core\Http\Response;
+use Core\Validation\RuleBuilder as Rule;
+use Throwable;
 
 class ProductController
 {
-    public function show(Request $request, int $id) {
+    /**
+     * @param Request $request
+     * @param int $id
+     * @return Response
+     * @throws Throwable
+     */
+    public function show(Request $request, int $id): Response
+    {
         $product = Product::find($id);
         if ($product === null) {
             throw new HttpNotFoundException('This product does not exist.');
         }
+
+        // Get the product images and sort them by the order column.
+        $images = $product->productPhotos();
+        usort($images, function ($a, $b) {
+            return $a->order <=> $b->order;
+        });
+
         return view('product', [
             'product' => $product,
+            'images' => $images
         ]);
     }
 
-    public function search(Request $request) {
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws Throwable
+     */
+    public function search(Request $request): Response
+    {
         // TODO: orwhere description
         // TODO: pagination
         $search = $request->input('search');
         $products = Product::where('name', 'LIKE', "%$search%")->get();
 
+        // If only one product is found, redirect to the product page.
         if (count($products) === 1) {
             return redirect('/product/' . $products[0]->id);
+        }
+
+        $categories = [];
+        foreach ($products as $product) {
+            $categories = array_merge($categories, $product->categories());
         }
 
         return view('browse', [
             'title' => 'Search results for "' . $search . '"',
             'products' => $products,
+            'categories' => $categories
         ]);
     }
 
-    public function showCategory(Request $request, int $id): Response
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws Throwable
+     */
+    public function index(Request $request): Response
     {
-        // TODO: pagination
-        $category = Category::find($id);
-        if ($category === null) {
-            throw new HttpNotFoundException('This category does not exist.');
-        }
-//        $products = $category->products();
-        $products = Product::all(); // TODO: use the category's products
-        $categries = Category::all();
-        return view('browse', [
-            'title' => $category->name,
-            'description' => $category->description,
+        $products = Product::all();
+        $categories = Category::all();
+        return view('admin/products', [
             'products' => $products,
-            'categories' => $categries
+            'categories' => $categories,
         ]);
     }
 }

@@ -33,6 +33,13 @@ class QueryBuilder
     private array $wheres;
 
     /**
+     * The joins for the query.
+     *
+     * @var array
+     */
+    private array $joins;
+
+    /**
      * Valid values: 'and', 'or'
      *
      * @var string
@@ -166,6 +173,13 @@ class QueryBuilder
         return $this;
     }
 
+    /**
+     * Add a where IN clause to the query.
+     *
+     * @param string $column
+     * @param array $values
+     * @return $this
+     */
     public function whereIn(string $column, array $values): self
     {
         if (empty($values)) {
@@ -175,6 +189,71 @@ class QueryBuilder
         $this->wheres[] = compact('type', 'column', 'values');
         return $this;
     }
+
+    /**
+     * Add a (inner) join to the query.
+     *
+     * @param string $table
+     * @param string $column1
+     * @param string $operator
+     * @param string $column2
+     * @return $this
+     */
+    public function join(string $table, string $column1, string $operator, string $column2): self
+    {
+        $type = 'inner';
+        $this->joins[] = compact('type', 'table', 'column1', 'operator', 'column2');
+        return $this;
+    }
+
+    /**
+     * Add a left join to the query.
+     *
+     * @param string $table
+     * @param string $column1
+     * @param string $operator
+     * @param string $column2
+     * @return $this
+     */
+    public function leftJoin(string $table, string $column1, string $operator, string $column2): self
+    {
+        $type = 'left';
+        $this->joins[] = compact('type', 'table', 'column1', 'operator', 'column2');
+        return $this;
+    }
+
+    /**
+     * Add a right join to the query.
+     *
+     * @param string $table
+     * @param string $column1
+     * @param string $operator
+     * @param string $column2
+     * @return $this
+     */
+    public function rightJoin(string $table, string $column1, string $operator, string $column2): self
+    {
+        $type = 'right';
+        $this->joins[] = compact('type', 'table', 'column1', 'operator', 'column2');
+        return $this;
+    }
+
+    /**
+     * Add a full outer join to the query.
+     *
+     * @param string $table
+     * @param string $column1
+     * @param string $operator
+     * @param string $column2
+     * @return $this
+     */
+    public function fullJoin(string $table, string $column1, string $operator, string $column2): self
+    {
+        $type = 'full';
+        $this->joins[] = compact('type', 'table', 'column1', 'operator', 'column2');
+        return $this;
+    }
+
 
     /**
      * Add an "order by" clause to the query.
@@ -392,6 +471,23 @@ class QueryBuilder
             }
         }
 
+        return $this;
+    }
+
+    /**
+     * Build the join part of the query.
+     * @todo add table alias to the column names?
+     *
+     * @return $this
+     */
+    private function buildJoins(): static
+    {
+        if (empty($this->joins)) {
+            return $this;
+        }
+        foreach ($this->joins as $join) {
+            $this->query .= ' ' . $join['type'] . ' JOIN ' . $join['table'] . ' ON ' . $join['column1'] . ' ' . $join['operator'] . ' ' . $join['column2'];
+        }
         return $this;
     }
 

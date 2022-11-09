@@ -50,6 +50,11 @@ class Request
     private array $attributes = [];
 
     /**
+     * @var array
+     */
+    private array $files = [];
+
+    /**
      * @var string
      */
     private string $body = '';
@@ -73,13 +78,14 @@ class Request
         $this->acceptTypes = $this->parseAcceptHeader();
         $this->referer = $_SERVER['HTTP_REFERER'] ?? null;
 
-        if($this->method === 'POST') {
+        if($this->method === 'POST' || $this->method === 'PUT' || $this->method === 'PATCH' || $this->method === 'DELETE') {
             $this->contentType = $_SERVER['CONTENT_TYPE'];
             $this->body = file_get_contents('php://input');
             if ($this->contentType === 'application/json') {
                 $this->parsedBody = json_decode($this->body, true);
             }
             $this->attributes = $_POST;
+            $this->files = $this->normalizeFiles($_FILES);
         } else {
             $this->attributes = $_GET;
         }
@@ -163,6 +169,26 @@ class Request
     {
         $acceptTypes = $this->acceptTypes;
         return array_key_first($acceptTypes);
+    }
+
+    /**
+     * Check if the request prefers json as response
+     *
+     * @return bool
+     */
+    public function prefersJson(): bool
+    {
+        return $this->getPreferredAcceptType() === 'application/json' || $this->getPreferredAcceptType() === 'text/javascript';
+    }
+
+    /**
+     * Check if the request prefers html as response
+     *
+     * @return bool
+     */
+    public function prefersHtml(): bool
+    {
+        return $this->getPreferredAcceptType() === 'text/html';
     }
 
     /**
@@ -306,6 +332,37 @@ class Request
     }
 
     /**
+     * Get a file from the request
+     *
+     * @param string $key
+     * @return UploadedFile|null
+     */
+    public function file(string $key): UploadedFile|null
+    {
+        return $this->files[$key] ?? null;
+    }
+
+    /**
+     * Get all the files from the request (array of UploadedFile)
+     *
+     * @return array
+     */
+    public function getFiles(): array
+    {
+        return $this->files;
+    }
+
+    /**
+     * Get all the input and files for the request.
+     *
+     * @return array
+     */
+    public function all(): array
+    {
+        return array_merge($this->attributes, $this->files);
+    }
+
+    /**
      * Set a request attribute
      *
      * @param string $key
@@ -356,7 +413,7 @@ class Request
      */
     public function validate(array $rules): void
     {
-        $validator = new Validator($this->attributes, $rules);
+        $validator = new Validator($this->all(), $rules);
         $validator->validate();
     }
 
@@ -370,4 +427,30 @@ class Request
         return $this->referer;
     }
 
+    /**
+     * Convert the files to an array of UploadedFile objects
+     *
+     * @param array $files
+     * @return array
+     */
+    private function normalizeFiles(array $files): array
+    {
+        $normalizedFiles = [];
+        foreach ($files as $key => $file) {
+            if (is_array($file['name'])) {
+                foreach (array_keys($file['name']) as $index) {
+                    $normalizedFiles[$key][$index] = new UploadedFile(
+                        $file['tmp_name'][$index],
+                        $file['size'][$index],
+                        $file['error'][$index],
+                        $file['name'][$index],
+                        $file['type'][$index]
+                    );
+                }
+            } else {
+                $normalizedFiles[$key] = new UploadedFile($file['tmp_name'], $file['size'], $file['error'], $file['name'], $file['type']);
+            }
+        }
+        return $normalizedFiles;
+    }
 }

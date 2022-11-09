@@ -31,7 +31,6 @@ class Role extends \Core\Model\Model
      */
     public static function getByName(string $name): ?Role
     {
-        $roles = self::where('name', '=', $name);
-        return $roles[0] ?? null;
+        return self::where('name', '=', $name)->first();
     }
 }

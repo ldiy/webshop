@@ -18,8 +18,9 @@ class HomeController
      */
     public function show(): Response
     {
-        $categories = Category::all();
-        $featuredProducts = Product::all(); // TODO: Get featured products
+        $categories = Category::where('display', '=', 1)->get();
+        $featuredCategory = Category::getByName('Featured');
+        $featuredProducts = !is_null($featuredCategory) ? $featuredCategory->products() : [];
 
         return view('home', [
             'categories' => $categories,

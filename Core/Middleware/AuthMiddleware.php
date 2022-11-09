@@ -25,7 +25,7 @@ class AuthMiddleware implements MiddlewareInterface
     public function process(Request $request, RequestHandlerInterface $handler): Response
     {
         if (!$this->auth->check()) {
-            if ($request->acceptsHtml()) {
+            if ($request->prefersHtml()) {
                 return redirect('/login'); // TODO: get named route
             }
             else {

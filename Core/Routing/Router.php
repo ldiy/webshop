@@ -33,7 +33,7 @@ class Router
      */
     public function addRoute(Route $route): void
     {
-        $this->routes[$route->getMethod()][$route->getName()] = $route;
+        $this->routes[$route->getMethod()][] = $route;
     }
 
 

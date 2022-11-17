@@ -3,7 +3,14 @@ return [
     // Root directory of the project relative to this file
     'root_dir' => dirname( __FILE__ ) . '/../',
 
-    'app_url' => 'http://127.0.0.1/webshop',
+    // The app url relative to the root of the webserver
+    'app_url' => '/webshop',
+
+    // Environment
+    'env' => 'dev',
+
+    // Debug mode
+    'debug' => true,
 
     // Views directory relative to root directory
     'views_dir' => 'App/Views',
@@ -11,11 +18,8 @@ return [
     // Views directory relative to root directory
     'templates_dir' => 'App/Views/templates',
 
-    // Environment
-    'env' => 'dev',
-
-    // Debug mode
-    'debug' => true,
+    // Storage directory relative to root directory
+    'storage_dir' => 'resources/storage',
 
     // Session
     'session' => [

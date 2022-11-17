@@ -47,7 +47,7 @@ class Validator
         // Run through each rule and validated the matched field by running its value through the rules
         foreach ($this->rules as $field => $rule) {
             $value = $this->data[$field] ?? null;
-            $rule->validate($this ,$value);
+            $rule->validate($value);
             if ($rule->hasError()) {
                 $this->errors[$field] = $rule->getError();
             }
@@ -253,15 +253,26 @@ class Validator
     /**
      * Array validator.
      * The value must be an array.
+     * Each item in the array can be validated by passing a rule.
      *
      * @param $value
+     * @param RuleBuilder|null $rule
      * @return bool
      * @throws ValidationRuleException
      */
-    public static function isArray($value): bool
+    public static function isArray($value, ?RuleBuilder $rule = null): bool
     {
         if (!is_array($value)) {
             throw new ValidationRuleException("This field must be an array");
+        }
+
+        if ($rule) {
+            foreach ($value as $item) {
+                $rule->validate($item);
+                if ($rule->hasError()) {
+                    throw new ValidationRuleException($rule->getError());
+                }
+            }
         }
 
         return true;

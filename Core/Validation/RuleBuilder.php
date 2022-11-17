@@ -3,6 +3,7 @@
 namespace Core\Validation;
 
 use Core\Exceptions\ValidationRuleException;
+use Core\Http\UploadedFile;
 
 /**
  * Methods accessible form the magic __call method
@@ -16,7 +17,7 @@ use Core\Exceptions\ValidationRuleException;
  * @method self maxLength(int $max)
  * @method self unique(string $table, string $column = null)
  * @method self exists(string $table, string $column = null)
- * @method self isArray()
+ * @method self isArray(?RuleBuilder $rule = null)
  * @method self file()
  * @method self image()
  * @method self maxDigits(int $max)
@@ -108,15 +109,19 @@ class RuleBuilder
     /**
      * Run a value through this validation rule chain.
      *
-     * @param Validator $validator
      * @param mixed $value
      * @return bool
      * @throws ValidationRuleException
      */
-    public function validate(Validator $validator, mixed $value): bool
+    public function validate(mixed $value): bool
     {
-        if (($this->nullable || $this->optional) && $value === null) {
-            return true;
+        if (($this->nullable || $this->optional)) {
+            if (is_null($value)) {
+                return true;
+            }
+            if ($value instanceof UploadedFile && $value->isEmpty()) {
+                return true;
+            }
         }
 
         // Loop through all the rules and execute them for the given value
@@ -124,12 +129,12 @@ class RuleBuilder
             $method = $rule['name'];
             $arguments = $rule['arguments'];
 
-            if (!method_exists($validator, $method)) {
+            if (!method_exists(Validator::class, $method)) {
                 throw new ValidationRuleException("Validation rule {$method} does not exist");
             }
 
             try {
-                $valid = $validator::$method($value ,...$arguments);
+                $valid = Validator::$method($value, ...$arguments);
 
                 if (!$valid) {
                     throw new ValidationRuleException("Validation rule {$method} failed");

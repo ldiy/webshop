@@ -4,11 +4,10 @@ namespace Core\Model;
 
 use Core\Database\DB;
 use Core\Database\QueryBuilder;
-use Exception;
 use http\Exception\RuntimeException;
-use PDO;
+use JsonSerializable;
 
-abstract class Model
+abstract class Model implements JsonSerializable
 {
     /**
      * The table associated with the model.
@@ -26,19 +25,37 @@ abstract class Model
     static string $primaryKey = 'id';
 
     /**
+     * @var bool
+     */
+    static bool $softDelete = false;
+
+    /**
+     * @var string
+     */
+    static string $softDeleteColumn = 'deleted_at';
+
+    /**
+     * @var bool
+     */
+    static bool $timestamps = false;
+
+    /**
+     * @var string
+     */
+    static string $createdAtColumn = 'created_at';
+
+    /**
+     * @var string
+     */
+    static string $updatedAtColumn = 'updated_at';
+
+    /**
      * The attributes of the model.
      * The key is the column name and the value is the value of the column.
      *
      * @var array
      */
     private array $attributes = [];
-
-    /**
-     * The keys of the attributes array that have been changed compared to the database.
-     * TODO: all attributes ara always changed when the model is loaded from the database.
-     * @var array
-     */
-    private array $changedAttributes = [];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -66,7 +83,28 @@ abstract class Model
     {
         return $this->getAttribute($name);
     }
-    
+
+    /**
+     * Set the value of an attribute.
+     *
+     * @param $name
+     * @param $value
+     */
+    public function __set($name, $value): void
+    {
+        $this->setAttribute($name, $value);
+    }
+
+    /**
+     * Serialize the model to an array, so it can be converted to JSON.
+     *
+     * @return array
+     */
+    public function jsonSerialize(): array
+    {
+        return $this->toArray();
+    }
+
     /**
      * Get this model attributes.
      *
@@ -85,8 +123,9 @@ abstract class Model
      */
     public function setAttributes(array $attributes): void
     {
-        $this->attributes = $attributes;
-        $this->changedAttributes = array_keys($attributes);
+        foreach ($attributes as $key => $value) {
+            $this->setAttribute($key, $value);
+        }
     }
 
     /**
@@ -111,21 +150,6 @@ abstract class Model
     public function setAttribute(string $key, $value): void
     {
         $this->attributes[$key] = $value;
-        $this->changedAttributes[] = $key;
-    }
-
-    /**
-     * Get the attributes that changed compared to the database.
-     *
-     * @return array
-     */
-    public function OnlyChangedAttributes(): array
-    {
-        $attributes = [];
-        foreach ($this->changedAttributes as $key) {
-            $attributes[$key] = $this->attributes[$key];
-        }
-        return $attributes;
     }
 
     /**
@@ -170,7 +194,7 @@ abstract class Model
     public function save(): void
     {
         if (isset($this->attributes[$this::$primaryKey])) {
-            $this->update($this->onlyChangedAttributes());
+            $this->update($this->getAttributes());
         } else {
             $this->insert($this->attributes);
         }
@@ -183,9 +207,13 @@ abstract class Model
      */
     public function delete(): void
     {
-        DB::table($this::$table)
-            ->where($this::$primaryKey, '=', $this->attributes[$this::$primaryKey])
-            ->delete();
+        if ($this::$softDelete) {
+            $this->update(['deleted_at' => date('Y-m-d H:i:s')]);
+        } else {
+            DB::table($this::$table)
+                ->where($this::$primaryKey, '=', $this->attributes[$this::$primaryKey])
+                ->delete();
+        }
     }
 
     /**
@@ -196,6 +224,9 @@ abstract class Model
      */
     private function update(array $attributes): void
     {
+        if ($this::$timestamps) {
+            $this->setAttribute($this::$updatedAtColumn, date('Y-m-d H:i:s'));
+        }
         DB::table($this::$table)
             ->where($this::$primaryKey, '=', $this->attributes[$this::$primaryKey])
             ->update($attributes);
@@ -209,6 +240,11 @@ abstract class Model
      */
     private function insert(array $attributes): void
     {
+        if ($this::$timestamps) {
+            $this->setAttribute($this::$createdAtColumn, date('Y-m-d H:i:s'));
+            $this->setAttribute($this::$updatedAtColumn, date('Y-m-d H:i:s'));
+        }
+
         $this->attributes =  $attributes;
 
         $id = DB::table($this::$table)
@@ -252,7 +288,11 @@ abstract class Model
      */
     public static function find(int $id): ?self
     {
-        return DB::table(static::$table)->withModel(static::class)->where(static::$primaryKey, '=', $id)->first();
+        $q =  DB::table(static::$table)->withModel(static::class)->where(static::$primaryKey, '=', $id);
+        if (static::$softDelete) {
+            $q->whereNull('deleted_at');
+        }
+        return $q->first();
     }
 
     /**
@@ -262,7 +302,11 @@ abstract class Model
      */
     public static function all(): array
     {
-        return DB::table(static::$table)->withModel(static::class)->get();
+        $q = DB::table(static::$table)->withModel(static::class);
+        if (static::$softDelete) {
+            $q->whereNull('deleted_at');
+        }
+        return $q->get();
     }
 
     /**
@@ -273,7 +317,7 @@ abstract class Model
      * @param string|null $localKey
      * @return QueryBuilder
      */
-    public function hasMany(string $model, string $foreignKey, string $localKey = null): QueryBuilder
+    public function hasMany(string $model, string $foreignKey, string $localKey = null): array
     {
         if (!is_subclass_of($model, Model::class)) {
             throw new RuntimeException('Class must be a subclass of Model');

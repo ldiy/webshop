@@ -1,6 +1,7 @@
 <?php
 namespace Core\Http;
 
+use Core\Exceptions\HttpException;
 use Core\Exceptions\ValidationException;
 use Core\Session\Session;
 use Core\Validation\Validator;
@@ -22,7 +23,6 @@ class Request
      * @var string
      */
     private string $method;
-
 
     /**
      * @var string
@@ -78,7 +78,7 @@ class Request
         $this->acceptTypes = $this->parseAcceptHeader();
         $this->referer = $_SERVER['HTTP_REFERER'] ?? null;
 
-        if($this->method === 'POST' || $this->method === 'PUT' || $this->method === 'PATCH' || $this->method === 'DELETE') {
+        if ($this->method === 'POST') {
             $this->contentType = $_SERVER['CONTENT_TYPE'];
             $this->body = file_get_contents('php://input');
             if ($this->contentType === 'application/json') {
@@ -86,8 +86,15 @@ class Request
             }
             $this->attributes = $_POST;
             $this->files = $this->normalizeFiles($_FILES);
-        } else {
+        } elseif ($this->method === 'PUT') {
+            // TODO: PHP doesn't parse the body of PUT requests, so we need to do it ourselves
+        } elseif($this->method === 'DELETE') {
+            // DELETE requests shouldn't have a body
+            $this->attributes = $_REQUEST;
+        } elseif ($this->method === 'GET') {
             $this->attributes = $_GET;
+        } else {
+            throw new HttpException(405, 'Method not allowed');
         }
     }
 
@@ -335,11 +342,22 @@ class Request
      * Get a file from the request
      *
      * @param string $key
-     * @return UploadedFile|null
+     * @return UploadedFile|array|null
      */
-    public function file(string $key): UploadedFile|null
+    public function file(string $key): UploadedFile|array|null
     {
         return $this->files[$key] ?? null;
+    }
+
+    /**
+     * Check if the request has a file with the given key
+     *
+     * @param string $key
+     * @return bool
+     */
+    public function hasFile(string $key): bool
+    {
+        return isset($this->files[$key]);
     }
 
     /**

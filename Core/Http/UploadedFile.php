@@ -33,6 +33,22 @@ class UploadedFile extends SplFileInfo
     private bool $moved = false;
 
     /**
+     * Map of mime types to extensions.
+     */
+    private const mimeMap = [
+        'image/bmp' => ['bmp', 'dib'],
+        'image/gif' => ['gif'],
+        'image/ico' => ['ico'],
+        'image/icon' => ['ico'],
+        'image/jpeg' => ['jpg', 'jpeg', 'jpe'],
+        'image/jpeg2000' => ['jp2', 'jpg2'],
+        'image/jpeg2000-image' => ['jp2', 'jpg2'],
+        'image/png' => ['png'],
+        'image/svg' => ['svg'],
+        'image/webp' => ['webp'],
+    ];
+
+    /**
      * Constructor.
      *
      * @param string $tmpName
@@ -125,4 +141,59 @@ class UploadedFile extends SplFileInfo
         return $this->error === UPLOAD_ERR_OK && is_uploaded_file($this->getPathname());
     }
 
+    /**
+     * @return bool
+     */
+    public function isEmpty(): bool
+    {
+        return $this->error === UPLOAD_ERR_NO_FILE;
+    }
+
+    /**
+     * Store the uploaded file in the given subdirectory of the storage folder.
+     * If name is not specified, a unique name will be generated.
+     *
+     * @param string|null $path
+     * @param string|null $name
+     * @return string The name of the stored file.
+     */
+    public function store(string $path = null, string $name = null): string
+    {
+        $name = $name ?? uniqid('', true) . '.' . ($this->guessExtension() ?? 'tmp') ;
+        $localPath = rtrim(app()->config('storage_dir'), '/') .
+            DIRECTORY_SEPARATOR . rtrim($path, '/') .
+            DIRECTORY_SEPARATOR . $name;
+        $fullPath = rtrim(app()->config('root_dir'), '/') .
+            DIRECTORY_SEPARATOR . $localPath;
+        $this->moveTo($fullPath);
+        return $localPath;
+    }
+
+    /**
+     * Try to get a file extension based on the mime type of this file.
+     *
+     * @return string|null
+     */
+    public function guessExtension(): ?string
+    {
+        $type = mime_content_type($this->getPathname());
+        if (isset(self::mimeMap[$type])) {
+            return self::mimeMap[$type][0];
+        }
+        return null;
+    }
+
+    /**
+     * Delete a file.
+     *
+     * @param string $path The path to the file relative to the root directory.
+     * @return void
+     */
+    public static function delete(string $path): void
+    {
+        $fullPath = rtrim(app()->config('root_dir'), '/') . DIRECTORY_SEPARATOR . $path;
+        if (file_exists($fullPath)) {
+            unlink($fullPath);
+        }
+    }
 }

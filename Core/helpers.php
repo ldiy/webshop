@@ -197,3 +197,15 @@ if (!function_exists('template')) {
         include(app()->config('root_dir') . DIRECTORY_SEPARATOR . app()->config('templates_dir') . DIRECTORY_SEPARATOR . $template_name . '.php');
     }
 }
+
+if (!function_exists('storage_path')) {
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    function storage_path(string $path = ''): string
+    {
+        return app()->config('root_dir') . DIRECTORY_SEPARATOR . app()->config('storage_dir') . DIRECTORY_SEPARATOR . $path;
+    }
+}

@@ -21,12 +21,12 @@ template('head', ['title' => $product->name]);
                     <div class="col-md-6">
                         <div class="d-flex flex-column justify-content-center">
                             <div class="main-image">
-                                <img src="<?php if (isset($images[0])) echo url($images[0]->path); else echo url('/resources/img/photos/empty-img.png') ?>" id="main-product-image" alt="TODO">
+                                <img src="<?php if (isset($images[0])) echo url($images[0]->image_path); else echo url('/resources/img/photos/empty-img.png') ?>" id="main-product-image" alt="TODO">
                             </div>
                             <div class="thumbnail-images">
                                 <?php foreach ($images as $image): ?>
                                     <div>
-                                        <img onclick="changeImage(this)" src="<?php echo url($image->path); ?>" alt="<?php echo $image->alt; ?>">
+                                        <img onclick="changeImage(this)" src="<?php echo url($image->image_path); ?>" alt="<?php echo $image->alt; ?>">
                                     </div>
                                 <?php endforeach; ?>
                             </div>
@@ -72,8 +72,8 @@ template('head', ['title' => $product->name]);
                             </div>
 
                             <!-- Price -->
-                            <h2 class="fw-bold">€ <?php echo round($product->price * 1.21, 2); ?></h2>
-                            <p>Excl. VAT (21%): € <?php echo round($product->price, 2); ?></p>
+                            <h2 class="fw-bold">€ <?php echo number_format((float)$product->price, 2, '.', '');?></h2>
+                            <p>Excl. VAT (21%): € <?php echo number_format((float)$product->price / 1.21, 2, '.', ''); ?></p>
 
                             <!-- Out of stock -->
                             <?php if($product->stock_quantity < 1): ?>
@@ -87,7 +87,11 @@ template('head', ['title' => $product->name]);
                                             <input type="number" class="form-control form-control-lg quantity-input" name="quantity" id="quantity" value="1" min="1">
                                     </div>
                                     <div class="col-8">
-                                        <button type="submit" id="submit-btn" class="btn btn-primary btn-lg">Add to cart</button>
+                                        <?php if (auth()->check()): ?>
+                                            <button type="submit" id="submit-btn" class="btn btn-primary btn-lg">Add to cart</button>
+                                        <?php else: ?>
+                                            <a href="<?php echo url('/login'); ?>" class="btn btn-primary btn-lg">Login to add to cart</a>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </form>

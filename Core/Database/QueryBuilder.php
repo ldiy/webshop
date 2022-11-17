@@ -191,6 +191,32 @@ class QueryBuilder
     }
 
     /**
+     * Add a where IS NULL clause to the query.
+     *
+     * @param string $column
+     * @return $this
+     */
+    public function whereNull(string $column): self
+    {
+        $type = 'null';
+        $this->wheres[] = compact('type', 'column');
+        return $this;
+    }
+
+    /**
+     * Add a where IS NOT NULL clause to the query.
+     *
+     * @param string $column
+     * @return $this
+     */
+    public function whereNotNull(string $column): self
+    {
+        $type = 'not null';
+        $this->wheres[] = compact('type', 'column');
+        return $this;
+    }
+
+    /**
      * Add a (inner) join to the query.
      *
      * @param string $table
@@ -464,6 +490,10 @@ class QueryBuilder
                     $repeatCnt = max(count($where['values']) - 1, 0);
                     $this->query .= $where['column'] . ' IN (' . str_repeat('?, ', $repeatCnt) . '?)';
                     $this->bindings = array_merge($this->bindings, $where['values']);
+                } elseif ($where['type'] === 'null') {
+                    $this->query .= $where['column'] . ' IS NULL';
+                } elseif ($where['type'] === 'not null') {
+                    $this->query .= $where['column'] . ' IS NOT NULL';
                 }
             } else {
                 $this->query .= $where['column'] . ' ' . $where['operator'] . ' ?';

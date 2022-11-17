@@ -4,21 +4,29 @@ namespace Core\Routing;
 class Route
 {
     /**
+     * The pattern to match the request URI against.
+     *
      * @var string
      */
     private string $pattern;
 
     /**
+     * The HTTP method to match the request against.
+     *
      * @var string
      */
     private string $method;
 
     /**
+     * The controller to call when the route is matched.
+     *
      * @var array<string>
      */
     private array $callback;
 
     /**
+     * The middlewares that need to be called before the controller.
+     *
      * @var array
      */
     private array $middlewares = [];
@@ -40,6 +48,10 @@ class Route
         $this->callback = $callback;
     }
 
+    /**
+     * @param $pattern
+     * @return string
+     */
     private function parsePattern($pattern): string
     {
         // Replace {} with regex
@@ -50,6 +62,10 @@ class Route
         return '/^' . $pattern . '$/';
     }
 
+    /**
+     * @param $path
+     * @return array
+     */
     public function findParams($path): array
     {
         $params = [];
@@ -92,7 +108,7 @@ class Route
     {
         return $this->callback;
     }
-    
+
     /**
      * @return string
      */
@@ -124,30 +140,51 @@ class Route
         return $this;
     }
 
+    /**
+     * Shorthand for creating a new GET route.
+     *
+     * @param $path
+     * @param $callback
+     * @return Route
+     */
     static public function get($path, $callback): Route
     {
         return new Route($path, 'GET', $callback);
     }
 
+    /**
+     * Shorthand for creating a new POST route.
+     *
+     * @param $path
+     * @param $callback
+     * @return Route
+     */
     static public function post($path, $callback): Route
     {
         return new Route($path, 'POST', $callback);
     }
 
+    /**
+     * Shorthand for creating a new PUT route.
+     *
+     * @param $path
+     * @param $callback
+     * @return Route
+     */
     static public function put($path, $callback): Route
     {
         return new Route($path, 'PUT', $callback);
     }
 
+    /**
+     * Shorthand for creating a new DELETE route.
+     *
+     * @param $path
+     * @param $callback
+     * @return Route
+     */
     static public function delete($path, $callback): Route
     {
         return new Route($path, 'DELETE', $callback);
     }
-
-    static public function patch($path, $callback): Route
-    {
-        return new Route($path, 'PATCH', $callback);
-    }
-
-
 }

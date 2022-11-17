@@ -90,4 +90,16 @@ class DB extends PDO
     {
         return new QueryBuilder(self::getInstance(), $table);
     }
+
+    /**
+     * Run a raw SQL query.
+     *
+     * @param string $sql
+     * @return array
+     */
+    public static function raw(string $sql): array
+    {
+        $stmt = self::getInstance()->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }

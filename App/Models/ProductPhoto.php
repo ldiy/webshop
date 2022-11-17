@@ -8,10 +8,10 @@ use Core\Model\Model;
  * Class ProductPhoto
  *
  * @property int $id
- * @property string $path
+ * @property string $image_path
  * @property int $product_id
  * @property string $alt
- * @property int $order
+ * @property int $order_index
  */
 class ProductPhoto extends Model
 {

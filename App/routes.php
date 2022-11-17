@@ -42,12 +42,23 @@ return [
         ->withMiddleware(AuthMiddleware::class),
 
 
-
-    // Admin routes
-    Route::get('/admin', [ProductController::class, 'index'])
+    /**
+     * Admin routes
+     */
+    // Product routes
+    Route::get('/admin/product', [ProductController::class, 'index'])
         ->withMiddleware(AuthMiddleware::class)
         ->withMiddleware(AdminRoleMiddleware::class),
-    Route::post('/product', [ProductController::class, 'store'])
+    Route::get('/admin/product/{id}', [ProductController::class, 'showAdmin']) // TODO: merge with user show
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+    Route::post('/admin/product', [ProductController::class, 'store'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+    Route::post('/admin/product/{id}/update', [ProductController::class, 'update'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+    Route::delete('/admin/product/{id}', [ProductController::class, 'destroy'])
         ->withMiddleware(AuthMiddleware::class)
         ->withMiddleware(AdminRoleMiddleware::class),
 ];

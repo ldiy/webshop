@@ -1,0 +1,26 @@
+.dropzone {
+    border: 2px dashed #0d6efd;
+    border-radius: 5px;
+    background: #ffffff;
+    min-height: 150px;
+    text-align: center;
+}
+
+.dropzone:hover {
+    background: #f1f1f1;
+    cursor: pointer;
+}
+
+.dropzone input {
+    display: none;
+}
+
+.img-preview {
+    max-width: 100px;
+    max-height: 100px;
+}
+
+.action-col{
+    text-align: right;
+    /*max-width: 2;*/
+}

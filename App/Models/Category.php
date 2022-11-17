@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Core\Database\DB;
 use Core\Model\Model;
 
 /**
@@ -69,6 +70,21 @@ class Category extends Model
     public function subcategories(): array
     {
         return $this->hasMany(Category::class, 'parent_id');
+    }
+
+    /**
+     * Attach a product to the category.
+     *
+     * @param Product|int $product Product object or ID.
+     * @return void
+     */
+    public function attachProduct(Product|int $product): void
+    {
+        $productId = $product instanceof Product ? $product->id : $product;
+        DB::table('category_product')->insert([
+            'category_id' => $this->id,
+            'product_id' => $productId
+        ]);
     }
 
 }

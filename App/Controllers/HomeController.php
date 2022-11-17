@@ -18,7 +18,7 @@ class HomeController
      */
     public function show(): Response
     {
-        $categories = Category::where('display', '=', 1)->get();
+        $categories = Category::where('display', '=', 1)->whereNull('parent_id')->get();
         $featuredCategory = Category::getByName('Featured');
         $featuredProducts = !is_null($featuredCategory) ? $featuredCategory->products() : [];
 

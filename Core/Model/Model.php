@@ -277,7 +277,23 @@ abstract class Model implements JsonSerializable
      */
     public static function where(string $column, string $operator, string $value): QueryBuilder
     {
-        return DB::table(static::$table)->withModel(static::class)->where($column, $operator, $value);
+        $q =  DB::table(static::$table)->withModel(static::class)->where($column, $operator, $value);
+        if (static::$softDelete) {
+            $q->whereNull('deleted_at');
+        }
+        return $q;
+    }
+
+    /**
+     * Get an array of models that match the given condition.
+     *
+     * @param string $column
+     * @param array $values
+     * @return QueryBuilder
+     */
+    public static function whereIn(string $column, array $values): QueryBuilder
+    {
+        return DB::table(static::$table)->withModel(static::class)->whereIn($column, $values);
     }
 
     /**
@@ -315,7 +331,7 @@ abstract class Model implements JsonSerializable
      * @param string $model
      * @param string $foreignKey
      * @param string|null $localKey
-     * @return QueryBuilder
+     * @return array
      */
     public function hasMany(string $model, string $foreignKey, string $localKey = null): array
     {
@@ -323,7 +339,23 @@ abstract class Model implements JsonSerializable
             throw new RuntimeException('Class must be a subclass of Model');
         }
         $localKey = $localKey ?? $this->getPrimaryKey();
-        return $model::where($foreignKey, '=', $this->getAttribute($localKey));
+        return $model::where($foreignKey, '=', $this->getAttribute($localKey))->get();
+    }
+
+    /**
+     * Define a one-to-one (inverse) relationship.
+     *
+     * @param string $model
+     * @param string|null $foreignKey
+     * @return Model|null
+     */
+    public function belongsTo(string $model, string $foreignKey = null): ?Model
+    {
+        if (!is_subclass_of($model, Model::class)) {
+            throw new RuntimeException('Class must be a subclass of Model');
+        }
+        $foreignKey = $foreignKey ?? $model::$primaryKey;
+        return $model::find($this->getAttribute($foreignKey));
     }
 
     /**
@@ -331,14 +363,46 @@ abstract class Model implements JsonSerializable
      *
      * @param string $model
      * @param string $foreignKey
+     * @param string|null $localKey
      * @return Model|null
      */
-    public function belongsTo(string $model, string $foreignKey): ?Model
+    public function hasOne(string $model, string $foreignKey, string $localKey = null): ?Model
     {
         if (!is_subclass_of($model, Model::class)) {
             throw new RuntimeException('Class must be a subclass of Model');
         }
-        $foreignKey = $foreignKey ?? $model::$primaryKey;
-        return $model::find($this->getAttribute($foreignKey));
+        $localKey = $localKey ?? $this->getPrimaryKey();
+        return $model::where($foreignKey, '=', $this->getAttribute($localKey))->first();
+    }
+
+    /**
+     * TODO: possible incorrect implementation
+     *
+     * @param string $model
+     * @param string $pivotTable
+     * @param string $foreignPivotKey
+     * @param string $relatedPivotKey
+     * @param string|null $foreignKey
+     * @param string|null $relatedKey
+     * @return array
+     */
+    public function belongsToMany(string $model, string $pivotTable, string $foreignPivotKey, string $relatedPivotKey, string $foreignKey = null, string $relatedKey = null): array
+    {
+        if (!is_subclass_of($model, Model::class)) {
+            throw new RuntimeException('Class must be a subclass of Model');
+        }
+        $foreignKey = $foreignKey ?? $this->getPrimaryKey();
+        $relatedKey = $relatedKey ?? $model::$primaryKey;
+        $pivot = DB::table($pivotTable)->where($foreignPivotKey, '=', $this->getAttribute($foreignKey))->get();
+
+        if (empty($pivot)) {
+            return [];
+        }
+
+        $ids = array_map(function ($id) use ($relatedPivotKey) {
+            return $id[$relatedPivotKey];
+        }, $pivot);
+
+        return $model::whereIn($relatedKey, $ids)->get();
     }
 }

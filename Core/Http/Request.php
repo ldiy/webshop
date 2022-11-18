@@ -79,13 +79,14 @@ class Request
         $this->referer = $_SERVER['HTTP_REFERER'] ?? null;
 
         if ($this->method === 'POST') {
+            $this->attributes = $_POST;
+            $this->files = $this->normalizeFiles($_FILES);
             $this->contentType = $_SERVER['CONTENT_TYPE'];
             $this->body = file_get_contents('php://input');
             if ($this->contentType === 'application/json') {
                 $this->parsedBody = json_decode($this->body, true);
+                $this->attributes = $this->parsedBody;
             }
-            $this->attributes = $_POST;
-            $this->files = $this->normalizeFiles($_FILES);
         } elseif ($this->method === 'PUT') {
             // TODO: PHP doesn't parse the body of PUT requests, so we need to do it ourselves
         } elseif($this->method === 'DELETE') {

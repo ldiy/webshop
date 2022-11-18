@@ -36,6 +36,8 @@ return [
         ->withMiddleware(AuthMiddleware::class),
     Route::post('/cart/add', [CartController::class, 'add'])
         ->withMiddleware(AuthMiddleware::class),
+    Route::post('/cart/update', [CartController::class, 'update'])
+        ->withMiddleware(AuthMiddleware::class),
 
     // Order routes
     Route::get('/checkout', [OrderController::class, 'create'])

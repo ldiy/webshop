@@ -153,7 +153,7 @@ template('head', ['title' => $product->name]);
 
             var data = {
                 quantity: $("#quantity").val(),
-                product_id: <?php echo $product->id; ?>
+                productId: <?php echo $product->id; ?>
             };
             $.ajax({
                 type: "POST",

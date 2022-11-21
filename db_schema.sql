@@ -126,12 +126,12 @@ CREATE TABLE IF NOT EXISTS `lshop`.`category_product` (
   CONSTRAINT `cp_category_id`
     FOREIGN KEY (`category_id`)
     REFERENCES `lshop`.`category` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION,
   CONSTRAINT `cp_product_id`
     FOREIGN KEY (`product_id`)
     REFERENCES `lshop`.`product` (`id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
@@ -174,6 +174,7 @@ CREATE TABLE IF NOT EXISTS `lshop`.`order_product` (
   `order_id` INT UNSIGNED NOT NULL,
   `product_id` INT UNSIGNED NOT NULL,
   `quantity` INT(10) UNSIGNED NOT NULL DEFAULT 1,
+  `unit_price` DECIMAL(20,2) NOT NULL,
   PRIMARY KEY (`order_id`, `product_id`),
   UNIQUE INDEX `order_id_product_id_UNIQUE` (`order_id` ASC, `product_id` ASC),
   INDEX `product_id_idx` (`product_id` ASC),

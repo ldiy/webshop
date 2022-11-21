@@ -2,6 +2,8 @@
 <html lang="en">
 <?php
 template('head', ['title' => 'cart']);
+
+$hasItems = count($items) > 0;
 ?>
 <body>
 
@@ -39,19 +41,24 @@ template('head', ['title' => 'cart']);
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="align-middle price">
+                                    <td class="align-middle align-right">
                                         <h5>€ <?php echo number_format((float)$item->price, 2, '.', ''); ?></h5>
                                     </td>
                                     <td class="align-middle">
                                         <input type="number" class="form-control form-control-lg quantity" oninput="updateQuantity(this, <?php echo $item->id; ?>)" value="<?php echo $item->quantity; ?>" min="0">
                                     </td>
-                                    <td class="align-middle price">
+                                    <td class="align-middle align-right">
                                         <h5 class="fw-bold total-item-price">€ <?php echo number_format((float)($item->price * $item->quantity), 2, '.', '');; ?></h5>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
                     </table>
+                    <?php if (!$hasItems) : ?>
+                        <div class="alert alert-info" role="alert">
+                            Your cart is empty
+                        </div>
+                    <?php endif; ?>
                 </div>
                 <div class="col-3">
                     <div class="card bg-light">
@@ -60,7 +67,7 @@ template('head', ['title' => 'cart']);
                         </div>
                         <div class="card-body">
                             <table class="table fs-5 mb-0">
-                                <tr class="border-bottom">
+                                <tr>
                                     <td>Tax (21%)</td>
                                     <td class="text-end" id="tax-total">€ <?php echo number_format((float)$tax, 2, '.', ''); ?></td>
                                 </tr>
@@ -71,7 +78,7 @@ template('head', ['title' => 'cart']);
                             </table>
                         </div>
                         <div class="card-footer">
-                            <a href="<?php echo url('/checkout'); ?>" class="btn btn-primary btn-lg checkout-btn">Checkout</a>
+                            <button onclick="location.href='<?php echo url('/checkout') ?>'" class="btn btn-primary btn-lg checkout-btn" <?php if (!$hasItems) echo 'disabled="disabled"'; ?>>Checkout</button>
                         </div>
                     </div>
                 </div>

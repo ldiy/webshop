@@ -15,7 +15,7 @@ td {
     width: 100%;
 }
 
-.price {
+.align-right {
     text-align: right;
     white-space: nowrap;
 }

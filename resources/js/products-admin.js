@@ -328,7 +328,7 @@ function addProduct() {
 function deleteProduct(productId) {
     $.ajax({
         type: "DELETE",
-        url: baseUrl + "admin/product" + productId,
+        url: baseUrl + "admin/product/" + productId,
         dataType: "json",
         success: function (data) {
             // Remove the product from the table.

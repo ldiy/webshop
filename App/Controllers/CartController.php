@@ -20,14 +20,14 @@ class CartController
     public function show(Request $request): Response
     {
         $cart = $request->session()->get('cart');
-        $products = is_null($cart) ? [] : Product::whereIn('id', array_keys($cart))->get();
+        $products = empty($cart) ? [] : Product::whereIn('id', array_keys($cart))->get();
 
         // Add quantity to products
         foreach ($products as $product) {
             $product->quantity = $cart[$product->id];
         }
 
-        // Calculate total and tax
+        // Calculate total and tax TODO: do this when adding/removing items from the cart
         $total = 0;
         foreach ($products as $product) {
             $total += $product->price * $product->quantity;

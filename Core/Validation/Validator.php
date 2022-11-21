@@ -329,4 +329,22 @@ class Validator
 
         return true;
     }
+
+    /**
+     * In array validator.
+     * The value must be in the given array.
+     *
+     * @param $value
+     * @param array $values
+     * @return bool
+     * @throws ValidationRuleException
+     */
+    public static function inArray($value, array $values): bool
+    {
+        if (!in_array($value, $values)) {
+            throw new ValidationRuleException("This field must be one of the following: " . implode(', ', $values));
+        }
+
+        return true;
+    }
 }

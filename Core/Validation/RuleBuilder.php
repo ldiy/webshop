@@ -33,18 +33,12 @@ class RuleBuilder
     private array $chain = [];
 
     /**
-     * The field may be null
+     * The field may be null, not present or be an empty string.
      *
      * @var bool
      */
     private bool $nullable = false;
 
-    /**
-     * The field is optional (not present or null)
-     *
-     * @var bool
-     */
-    private bool $optional = false;
 
     /**
      * This will contain the first error that a rule may have thrown.
@@ -83,26 +77,13 @@ class RuleBuilder
 
     /**
      * Nullable rule.
-     * The field may be null.
+     * The field may be null, not present or be an empty string.
      *
      * @return $this
      */
     public function nullable(): self
     {
         $this->nullable = true;
-
-        return $this;
-    }
-
-    /**
-     * Optional rule.
-     * The rest of the rules must only be checked if the field is present / not null
-     *
-     * @return $this
-     */
-    public function optional(): self
-    {
-        $this->optional = true;
 
         return $this;
     }
@@ -116,8 +97,8 @@ class RuleBuilder
      */
     public function validate(mixed $value): bool
     {
-        if (($this->nullable || $this->optional)) {
-            if (is_null($value)) {
+        if ($this->nullable) {
+            if (is_null($value) || $value === '') {
                 return true;
             }
             if ($value instanceof UploadedFile && $value->isEmpty()) {

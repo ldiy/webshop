@@ -77,4 +77,24 @@ class User extends Model implements UserInterface
     {
         return $this->belongsTo(Role::class, 'role_id');
     }
+
+    /**
+     * Get the addresses that this user has.
+     *
+     * @return Address[]
+     */
+    public function addresses(): array
+    {
+        return $this->hasMany(Address::class, 'user_id');
+    }
+
+    /**
+     * Get the orders that this user has.
+     *
+     * @return Order[]
+     */
+    public function orders(): array
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
 }

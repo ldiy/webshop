@@ -1,0 +1,8 @@
+.align-right {
+    text-align: right;
+}
+
+.order-row:hover {
+    cursor: pointer;
+    background-color: #f0f5ff;
+}

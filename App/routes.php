@@ -42,6 +42,16 @@ return [
     // Order routes
     Route::get('/checkout', [OrderController::class, 'create'])
         ->withMiddleware(AuthMiddleware::class),
+    Route::post('/order', [OrderController::class, 'store'])
+        ->withMiddleware(AuthMiddleware::class),
+    Route::post('/shipping/calculate', [OrderController::class, 'calculateShipping'])
+        ->withMiddleware(AuthMiddleware::class),
+    Route::get('/order', [OrderController::class, 'index'])
+        ->withMiddleware(AuthMiddleware::class),
+    Route::get('/order/{id}', [OrderController::class, 'show'])
+        ->withMiddleware(AuthMiddleware::class),
+    Route::get('/order/{id}/pay', [OrderController::class, 'pay']) // TODO: redirect to payment page after order is created
+        ->withMiddleware(AuthMiddleware::class),
 
 
     /**

@@ -208,7 +208,7 @@ abstract class Model implements JsonSerializable
     public function delete(): void
     {
         if ($this::$softDelete) {
-            $this->update(['deleted_at' => date('Y-m-d H:i:s')]);
+            $this->update([$this::$softDeleteColumn => date('Y-m-d H:i:s')]);
         } else {
             DB::table($this::$table)
                 ->where($this::$primaryKey, '=', $this->attributes[$this::$primaryKey])
@@ -226,7 +226,9 @@ abstract class Model implements JsonSerializable
     {
         if ($this::$timestamps) {
             $this->setAttribute($this::$updatedAtColumn, date('Y-m-d H:i:s'));
+            $attributes[$this::$updatedAtColumn] = date('Y-m-d H:i:s');
         }
+
         DB::table($this::$table)
             ->where($this::$primaryKey, '=', $this->attributes[$this::$primaryKey])
             ->update($attributes);
@@ -240,15 +242,15 @@ abstract class Model implements JsonSerializable
      */
     private function insert(array $attributes): void
     {
+        $this->attributes = $attributes;
+
         if ($this::$timestamps) {
             $this->setAttribute($this::$createdAtColumn, date('Y-m-d H:i:s'));
             $this->setAttribute($this::$updatedAtColumn, date('Y-m-d H:i:s'));
         }
 
-        $this->attributes =  $attributes;
-
         $id = DB::table($this::$table)
-            ->insert($attributes);
+            ->insert($this->attributes);
 
         $this->attributes[$this::$primaryKey] = $id;
     }
@@ -259,7 +261,7 @@ abstract class Model implements JsonSerializable
      * @param array $attributes
      * @return static
      */
-    public static function create(array $attributes = []): self
+    public static function create(array $attributes = []): static
     {
         $model = new static();
         $model->setAttributes($attributes);
@@ -279,7 +281,7 @@ abstract class Model implements JsonSerializable
     {
         $q =  DB::table(static::$table)->withModel(static::class)->where($column, $operator, $value);
         if (static::$softDelete) {
-            $q->whereNull('deleted_at');
+            $q->whereNull(static::$softDeleteColumn);
         }
         return $q;
     }
@@ -302,11 +304,11 @@ abstract class Model implements JsonSerializable
      * @param int $id
      * @return static|null
      */
-    public static function find(int $id): ?self
+    public static function find(int $id): ?static
     {
         $q =  DB::table(static::$table)->withModel(static::class)->where(static::$primaryKey, '=', $id);
         if (static::$softDelete) {
-            $q->whereNull('deleted_at');
+            $q->whereNull(static::$softDeleteColumn);
         }
         return $q->first();
     }
@@ -320,7 +322,7 @@ abstract class Model implements JsonSerializable
     {
         $q = DB::table(static::$table)->withModel(static::class);
         if (static::$softDelete) {
-            $q->whereNull('deleted_at');
+            $q->whereNull(static::$softDeleteColumn);
         }
         return $q->get();
     }
@@ -403,6 +405,17 @@ abstract class Model implements JsonSerializable
             return $id[$relatedPivotKey];
         }, $pivot);
 
-        return $model::whereIn($relatedKey, $ids)->get();
+        $models = $model::whereIn($relatedKey, $ids)->get();
+
+        // Add pivot data to models
+        foreach ($models as $model) {
+            foreach ($pivot as $p) {
+                if ($p[$relatedPivotKey] === $model->getAttribute($relatedKey)) {
+                    $model->pivot = $p;
+                }
+            }
+        }
+
+        return $models;
     }
 }

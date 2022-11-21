@@ -421,7 +421,7 @@ class QueryBuilder
             $this->columns = ['*'];
         }
         $columns = implode(', ', $this->columns);
-        $this->query = "SELECT " . $columns . " FROM " . $this->table;
+        $this->query = 'SELECT ' . $columns . ' FROM `' . $this->table . '`';
         $this->buildWheres()
             ->buildOrders()
             ->buildLimit();
@@ -437,7 +437,7 @@ class QueryBuilder
     {
         $columns = implode(', ', array_keys($data));
         $values = str_repeat('?, ', count($data) - 1) . '?';
-        $this->query = 'INSERT INTO ' . $this->table . ' (' . $columns . ') VALUES ('. $values . ')';
+        $this->query = 'INSERT INTO `' . $this->table . '` (' . $columns . ') VALUES ('. $values . ')';
         $this->bindings = array_values($data);
     }
 
@@ -450,7 +450,7 @@ class QueryBuilder
     private function buildUpdate(array $data): void
     {
         $columns = implode(' = ?, ', array_keys($data)) . ' = ?';
-        $this->query = 'UPDATE ' . $this->table . ' SET ' . $columns;
+        $this->query = 'UPDATE `' . $this->table . '` SET ' . $columns;
         $this->bindings = array_values($data);
         $this->buildWheres();
     }

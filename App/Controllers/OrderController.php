@@ -168,9 +168,10 @@ class OrderController
         // Find all the products in the database
         $products = Product::whereIn('id', array_keys($cart))->get();
 
-        // Add the products to the order
+        // Add the products to the order and decrease the stock
         foreach ($products as $product) {
             $order->attachProduct($product, $cart[$product->id]);
+            $product->decrementStockQuantity($cart[$product->id]);
         }
 
         // Clear the cart
@@ -206,6 +207,7 @@ class OrderController
             $countryCode = $request->input('countryCode');
         }
 
+        // Calculate the shipping cost
         $shippingCost = self::$shippingCosts[$countryCode];
 
         // Set the shipping cost in the session

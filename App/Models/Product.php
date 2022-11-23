@@ -92,4 +92,19 @@ class Product extends Model
         // Delete
         DB::table('category_product')->where('product_id', '=', $this->id)->whereIn('category_id', $categoryIds)->delete();
     }
+
+    /**
+     * Decrease the stock quantity.
+     *
+     * @param int $quantity
+     * @return void
+     */
+    public function decrementStockQuantity(int $quantity): void
+    {
+        $this->stock_quantity -= $quantity;
+        if ($this->stock_quantity < 0) {
+            $this->stock_quantity = 0;
+        }
+        $this->save();
+    }
 }

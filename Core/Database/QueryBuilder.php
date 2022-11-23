@@ -310,7 +310,7 @@ class QueryBuilder
     /**
      * Execute the query as a "select" statement.
      *
-     * @return array
+     * @return array|Model[]
      */
     public function get(): array
     {

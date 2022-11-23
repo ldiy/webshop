@@ -341,7 +341,11 @@ abstract class Model implements JsonSerializable
             throw new RuntimeException('Class must be a subclass of Model');
         }
         $localKey = $localKey ?? $this->getPrimaryKey();
-        return $model::where($foreignKey, '=', $this->getAttribute($localKey))->get();
+        $localKeyValue = $this->getAttribute($localKey);
+        if (is_null($localKeyValue)) {
+            return [];
+        }
+        return $model::where($foreignKey, '=', $localKeyValue)->get();
     }
 
     /**
@@ -357,7 +361,11 @@ abstract class Model implements JsonSerializable
             throw new RuntimeException('Class must be a subclass of Model');
         }
         $foreignKey = $foreignKey ?? $model::$primaryKey;
-        return $model::find($this->getAttribute($foreignKey));
+        $foreignKeyValue = $this->getAttribute($foreignKey);
+        if (is_null($foreignKeyValue)) {
+            return null;
+        }
+        return $model::find($foreignKeyValue);
     }
 
     /**
@@ -374,11 +382,15 @@ abstract class Model implements JsonSerializable
             throw new RuntimeException('Class must be a subclass of Model');
         }
         $localKey = $localKey ?? $this->getPrimaryKey();
-        return $model::where($foreignKey, '=', $this->getAttribute($localKey))->first();
+        $localKeyValue = $this->getAttribute($localKey);
+        if (is_null($localKeyValue)) {
+            return null;
+        }
+        return $model::where($foreignKey, '=', $localKeyValue)->first();
     }
 
     /**
-     * TODO: possible incorrect implementation
+     * Define a many-to-many relationship.
      *
      * @param string $model
      * @param string $pivotTable

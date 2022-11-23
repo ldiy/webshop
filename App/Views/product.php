@@ -84,7 +84,7 @@ template('head', ['title' => $product->name]);
                             <form id="add-form" enctype="multipart/form-data">
                                 <div class="row">
                                     <div class="col-4">
-                                            <input type="number" class="form-control form-control-lg quantity-input" name="quantity" id="quantity" value="1" min="1">
+                                            <input type="number" class="form-control form-control-lg quantity-input" name="quantity" id="quantity" value="1" min="1" max="9999999999">
                                     </div>
                                     <div class="col-8">
                                         <?php if (auth()->check()): ?>

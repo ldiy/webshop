@@ -45,7 +45,7 @@ $hasItems = count($items) > 0;
                                         <h5>€ <?php echo number_format((float)$item->price, 2, '.', ''); ?></h5>
                                     </td>
                                     <td class="align-middle">
-                                        <input type="number" class="form-control form-control-lg quantity" oninput="updateQuantity(this, <?php echo $item->id; ?>)" value="<?php echo $item->quantity; ?>" min="0">
+                                        <input type="number" class="form-control form-control-lg quantity" oninput="updateQuantity(this, <?php echo $item->id; ?>)" value="<?php echo $item->quantity; ?>" min="0" max="9999999999">
                                     </td>
                                     <td class="align-middle align-right">
                                         <h5 class="fw-bold total-item-price">€ <?php echo number_format((float)($item->price * $item->quantity), 2, '.', '');; ?></h5>

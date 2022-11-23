@@ -13,6 +13,8 @@ use Throwable;
 class CartController
 {
     /**
+     * Show the cart page.
+     *
      * @param Request $request
      * @return Response
      * @throws Throwable
@@ -27,16 +29,8 @@ class CartController
             $product->quantity = $cart[$product->id];
         }
 
-        // Calculate total and tax TODO: do this when adding/removing items from the cart
-        $total = 0;
-        foreach ($products as $product) {
-            $total += $product->price * $product->quantity;
-        }
-        $tax = $total - $total / 1.21;
-
-        // Save the total and tax in the session
-        $request->session()->set('cartTotal', $total);
-        $request->session()->set('cartTax', $tax);
+        $total = $request->session()->get('cartTotal') ?? 0;
+        $tax = $request->session()->get('cartTax') ?? 0;
 
         return view('cart', [
             'items' => $products,
@@ -46,6 +40,8 @@ class CartController
     }
 
     /**
+     * Add a product to the cart.
+     *
      * @param Request $request
      * @return JsonResponse
      * @throws ValidationException
@@ -54,11 +50,11 @@ class CartController
     {
         $request->validate([
             'productId' => Rule::new()->required()->numeric()->exists(Product::$table, Product::$primaryKey),
-            'quantity' => Rule::new()->required()->numeric()->minValue(1),
+            'quantity' => Rule::new()->required()->numeric()->minValue(1)->maxDigits(10),
         ]);
 
         // Get the current cart
-        $cart = $request->session()->get('cart');
+        $cart = $request->session()->get('cart') ?? [];
 
         // Add the new item or update the quantity
         $productId = $request->input('productId');
@@ -72,6 +68,15 @@ class CartController
         // Save the cart
         $request->session()->set('cart', $cart);
 
+        // Find the product
+        $product = Product::find($productId);
+
+        // Update the total and tax
+        $total = ($request->session()->get('cartTotal') ?? 0) + $product->price * $quantity;
+        $tax = $total - $total / 1.21;
+        $request->session()->set('cartTotal', $total);
+        $request->session()->set('cartTax', $tax);
+
         return jsonResponse([
             'success' => true,
             'message' => 'Product added to cart',
@@ -81,6 +86,9 @@ class CartController
     }
 
     /**
+     * Update the quantity of a product in the cart.
+     * If the quantity is 0, the product will be removed from the cart.
+     *
      * @param Request $request
      * @return JsonResponse
      * @throws ValidationException
@@ -89,7 +97,7 @@ class CartController
     {
         $request->validate([
             'productId' => Rule::new()->required()->numeric()->exists(Product::$table, Product::$primaryKey),
-            'quantity' => Rule::new()->required()->numeric()->minValue(0),
+            'quantity' => Rule::new()->required()->numeric()->minValue(0)->maxDigits(10),
         ]);
 
         // Get the current cart

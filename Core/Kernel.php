@@ -10,9 +10,8 @@ use Core\Handlers\ExceptionHandler;
 use Core\Http\Request;
 use Core\Http\Response;
 use Core\Logging\Logger;
-use Core\Middleware\AuthMiddleware;
+use Core\Middleware\EmptyStringToNullMiddleware;
 use Core\Middleware\MiddlewareDispatcher;
-use Core\Middleware\RouteMiddleware;
 use Core\Middleware\RouterMiddleware;
 use Core\Middleware\SessionMiddleware;
 use Core\Middleware\TrimInputMiddleware;
@@ -85,6 +84,7 @@ class Kernel extends Container
         try {
             $middlewares = [
                 TrimInputMiddleware::class,
+                EmptyStringToNullMiddleware::class,
                 SessionMiddleware::class,
                 RouterMiddleware::class,
             ];
@@ -163,5 +163,4 @@ class Kernel extends Container
     {
         return $this->logger;
     }
-
 }

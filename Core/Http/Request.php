@@ -253,8 +253,8 @@ class Request
         $acceptHeader = str_replace(' ', '', $acceptHeader);
         $acceptHeader = explode(',', $acceptHeader);
         foreach ($acceptHeader as $acceptType) {
-            $acceptType = explode(';', $acceptType);
-            $acceptTypes[$acceptType[0]] = $acceptType[1] ?? 1;
+            $acceptType = explode(';q=', $acceptType);
+            $acceptTypes[$acceptType[0]] = floatval($acceptType[1] ?? 1);
         }
         arsort($acceptTypes);
         return $acceptTypes;

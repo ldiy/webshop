@@ -22,6 +22,7 @@ use Core\Http\UploadedFile;
  * @method self image()
  * @method self maxDigits(int $max)
  * @method self inArray(array $array)
+ * @method self boolean()
  */
 class RuleBuilder
 {

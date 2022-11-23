@@ -347,4 +347,20 @@ class Validator
 
         return true;
     }
+
+    /**
+     * Boolean validator.
+     *
+     * @param $value
+     * @return bool
+     * @throws ValidationRuleException
+     */
+    public static function boolean($value): bool
+    {
+        if (!(is_bool($value)) ) {
+            throw new ValidationRuleException("This field must be a boolean");
+        }
+
+        return true;
+    }
 }

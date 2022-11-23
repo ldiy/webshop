@@ -21,7 +21,7 @@
                     $thumbnail = is_null($category->thumbnail_path) ? 'https://via.placeholder.com/500' : url($category->thumbnail_path);
                     ?>
                     <div class="col mb-5">
-                        <div class="card category-card h-100" onclick="location.href='<?php echo url('/category/' . $category->id); ?>'">
+                        <div class="card category-card h-100" onclick="location.href='<?php echo url('/product?category=' . $category->id); ?>'">
                             <img class="card-img-top" src="<?php echo $thumbnail; ?>" alt="<?php echo $category->name; ?>">
                             <div class="card-body">
                             </div>

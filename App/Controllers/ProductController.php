@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductPhoto;
+use Core\Database\DB;
 use Core\Exceptions\HttpNotFoundException;
 use Core\Exceptions\ValidationException;
 use Core\Http\Request;
@@ -105,12 +106,12 @@ class ProductController
      * @return Response
      * @throws Throwable
      */
-    public function index(Request $request): Response
+    public function indexAdmin(Request $request): Response
     {
         $products = Product::all();
         $categories = Category::all();
 
-        // Change the thumbnail path to the full pah.
+        // Change the thumbnail path to the full url.
         foreach ($products as $product) {
             $product->thumbnail_path = url($product->thumbnail_path);
         }
@@ -118,6 +119,178 @@ class ProductController
         return view('admin/products', [
             'products' => $products,
             'categories' => $categories,
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws Throwable
+     * @throws ValidationException
+     */
+    public function index(Request $request): Response
+    {
+        if ($request->prefersHtml()) {
+            return view('browse');
+        }
+
+        $request->validate([
+            'search' => Rule::new()->nullable(),
+            'category' => Rule::new()->nullable()->exists(Category::$table, Category::$primaryKey),
+            'price_min' => Rule::new()->nullable()->numeric()->minValue(0),
+            'price_max' => Rule::new()->nullable()->numeric()->minValue(0),
+            'width_min' => Rule::new()->nullable()->numeric()->minValue(0),
+            'width_max' => Rule::new()->nullable()->numeric()->minValue(0),
+            'height_min' => Rule::new()->nullable()->numeric()->minValue(0),
+            'height_max' => Rule::new()->nullable()->numeric()->minValue(0),
+            'depth_min' => Rule::new()->nullable()->numeric()->minValue(0),
+            'depth_max' => Rule::new()->nullable()->numeric()->minValue(0),
+            'weight_min' => Rule::new()->nullable()->numeric()->minValue(0),
+            'weight_max' => Rule::new()->nullable()->numeric()->minValue(0),
+            'in_stock' => Rule::new()->nullable()->inArray(['true', 'false']),
+            'sort' => Rule::new()->nullable()->inArray(['name', 'price', 'width', 'height', 'depth', 'weight']),
+            'sort_direction' => Rule::new()->nullable()->inArray(['asc', 'desc']),
+        ]);
+
+        $query = DB::table(Product::$table)->withModel(Product::class);
+
+        // Search
+        $search = $request->input('search');
+        if ($search !== null) {
+            $query = $query->where('name', 'LIKE', "%$search%");
+        }
+
+        // Category
+        $categoryId = $request->input('category');
+        if ($categoryId !== null) {
+            $category = Category::find($categoryId);
+            $products = $category->products();
+            $productIds = [];
+            foreach ($products as $product) {
+                $productIds[] = $product->id;
+            }
+            $query = $query->whereIn('id', $productIds);
+
+        }
+
+        // Price
+        $priceMin = $request->input('price_min');
+        $priceMax = $request->input('price_max');
+        if ($priceMin !== null) {
+            $query = $query->where('price', '>=', $priceMin);
+        }
+        if ($priceMax !== null) {
+            $query = $query->where('price', '<=', $priceMax);
+        }
+
+        // Width
+        $widthMin = $request->input('width_min');
+        $widthMax = $request->input('width_max');
+        if ($widthMin !== null) {
+            $query = $query->where('width', '>=', $widthMin);
+        }
+        if ($widthMax !== null) {
+            $query = $query->where('width', '<=', $widthMax);
+        }
+
+        // Height
+        $heightMin = $request->input('height_min');
+        $heightMax = $request->input('height_max');
+        if ($heightMin !== null) {
+            $query = $query->where('height', '>=', $heightMin);
+        }
+        if ($heightMax !== null) {
+            $query = $query->where('height', '<=', $heightMax);
+        }
+
+        // Depth
+        $depthMin = $request->input('depth_min');
+        $depthMax = $request->input('depth_max');
+        if ($depthMin !== null) {
+            $query = $query->where('depth', '>=', $depthMin);
+        }
+        if ($depthMax !== null) {
+            $query = $query->where('depth', '<=', $depthMax);
+        }
+
+        // Weight
+        $weightMin = $request->input('weight_min');
+        $weightMax = $request->input('weight_max');
+        if ($weightMin !== null) {
+            $query = $query->where('weight', '>=', $weightMin);
+        }
+        if ($weightMax !== null) {
+            $query = $query->where('weight', '<=', $weightMax);
+        }
+
+        // In stock
+        $inStock = $request->input('in_stock');
+        if ($inStock === 'true') {
+            $query = $query->where('stock_quantity', '>', 0);
+        }
+
+        // Sort
+        $sort = $request->input('sort');
+        $sortDirection = $request->input('sort_direction');
+        if ($sort !== null && $sortDirection !== null) {
+            $query = $query->orderBy($sort, $sortDirection);
+        }
+
+        // Execute query and get products
+        $products = $query->get();
+
+        // If there is a category selected, get the subcategories and parent categories.
+        if (isset($category)) {
+            $categories = $category->subcategories();
+
+            // Get the parent categories to use in the breadcrumbs.
+            $parents = [];
+            $parent = $category->parent();
+            while ($parent !== null) {
+                $parents[] = $parent;
+                $parent = $parent->parent();
+            }
+        }
+
+        // The first breadcrumb is the home page.
+        $breadcrumbs = [
+            [
+                'name' => 'Home',
+                'url' => url('/'),
+            ],
+        ];
+
+        // Generate the breadcrumbs from the selected category and its parents, or from the search query.
+        if (isset($category)) {
+            foreach ($parents as $parent) {
+                $breadcrumbs[] = [
+                    'name' => $parent->name,
+                    'url' => url('/product?category=' . $parent->id),
+                    'category_id' => $parent->id,
+                ];
+            }
+            $breadcrumbs[] = [
+                'name' => $category->name,
+                'url' => url('/product?category=' . $category->id),
+                'category_id' => $category->id,
+            ];
+        } elseif ($search !== null) {
+            $breadcrumbs[] = [
+                'name' => 'Search: ' . htmlspecialchars($search),
+                'url' => url('/product?search=' . htmlspecialchars($search)),
+            ];
+        } else {
+            $breadcrumbs[] = [
+                'name' => 'Browse',
+                'url' => url('/product'),
+            ];
+        }
+
+        return jsonResponse([
+            'products' => $products,
+            'categories' => $categories ?? [],
+            'category' => $category ?? null,
+            'breadcrumbs' => $breadcrumbs,
         ]);
     }
 

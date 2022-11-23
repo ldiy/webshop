@@ -1,7 +1,6 @@
 <?php
 
 use App\Controllers\CartController;
-use App\Controllers\CategoryController;
 use App\Controllers\HomeController;
 use App\Controllers\LoginController;
 use App\Controllers\OrderController;
@@ -25,11 +24,9 @@ return [
     Route::post('/register', [RegisterController::class, 'register']),
 
     // Product routes
+    Route::get('/product', [ProductController::class, 'index']),
     Route::get('/product/{id}', [ProductController::class, 'show']),
     Route::get('/search', [ProductController::class, 'search']),
-
-    // Category routes
-    Route::get('/category/{id}', [CategoryController::class, 'show']),
 
     // Cart routes
     Route::get('/cart', [CartController::class, 'show'])
@@ -58,10 +55,10 @@ return [
      * Admin routes
      */
     // Product routes
-    Route::get('/admin/product', [ProductController::class, 'index'])
+    Route::get('/admin/product', [ProductController::class, 'indexAdmin'])
         ->withMiddleware(AuthMiddleware::class)
         ->withMiddleware(AdminRoleMiddleware::class),
-    Route::get('/admin/product/{id}', [ProductController::class, 'showAdmin']) // TODO: merge with user show
+    Route::get('/admin/product/{id}', [ProductController::class, 'showAdmin'])
         ->withMiddleware(AuthMiddleware::class)
         ->withMiddleware(AdminRoleMiddleware::class),
     Route::post('/admin/product', [ProductController::class, 'store'])

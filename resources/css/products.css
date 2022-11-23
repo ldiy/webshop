@@ -7,3 +7,7 @@
     object-fit: contain;
     height: 200px;
 }
+
+.sort-label {
+    white-space: nowrap;
+}

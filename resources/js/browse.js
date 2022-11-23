@@ -70,7 +70,7 @@ function renderProducts(products) {
         image.src = baseUrl + product.thumbnail_path;
         image.alt = product.name;
         name.textContent = product.name;
-        price.textContent = product.price;
+        price.textContent = '€ ' + product.price;
 
         // Go to the product page when clicking on the card
         productCard.querySelector('.product-card').onclick = function () {

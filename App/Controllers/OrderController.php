@@ -42,7 +42,11 @@ class OrderController
             return redirect('/orders');
         }
 
-        $products = $order->products(); // TODO: also load products that are soft-deleted
+        // Temporarily disable soft deletes, so we can see all products
+        Product::setSoftDelete(false);
+        $products = $order->products();
+        Product::setSoftDelete(true);
+
         $address = $order->address();
         $status = $order->getStatusName();
 

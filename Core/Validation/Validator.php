@@ -313,7 +313,8 @@ class Validator
     }
 
     /**
-     * Max number of digits validator..
+     * Max number of digits validator.
+     * Only the integer part of the number is considered.
      *
      * @param $value
      * @param int $max
@@ -322,8 +323,9 @@ class Validator
      */
     public static function maxDigits($value, int $max): bool
     {
-        // TODO: check for decimal point
-        if (strlen($value) > $max) {
+        // Convert the int part of the number to a string
+        $intPart = (string) floor($value);
+        if (strlen($intPart) > $max) {
             throw new ValidationRuleException("This field must not be more than {$max} digits long");
         }
 

@@ -152,7 +152,7 @@ class ProductController
             'sort_direction' => Rule::new()->nullable()->inArray(['asc', 'desc']),
         ]);
 
-        $query = DB::table(Product::$table)->withModel(Product::class);
+        $query = DB::table(Product::$table)->withModel(Product::class)->whereNull('deleted_at');
 
         // Search
         $search = $request->input('search');

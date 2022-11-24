@@ -295,7 +295,11 @@ abstract class Model implements JsonSerializable
      */
     public static function whereIn(string $column, array $values): QueryBuilder
     {
-        return DB::table(static::$table)->withModel(static::class)->whereIn($column, $values);
+        $q =  DB::table(static::$table)->withModel(static::class)->whereIn($column, $values);
+        if (static::$softDelete) {
+            $q->whereNull(static::$softDeleteColumn);
+        }
+        return $q;
     }
 
     /**
@@ -429,5 +433,17 @@ abstract class Model implements JsonSerializable
         }
 
         return $models;
+    }
+
+    /**
+     * Change the soft delete option.
+     * This can be used as a workaround to temporarily disable the soft delete feature.
+     *
+     * @param bool $softDelete
+     * @return void
+     */
+    public static function setSoftDelete(bool $softDelete): void
+    {
+        static::$softDelete = $softDelete;
     }
 }

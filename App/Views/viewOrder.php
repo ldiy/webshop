@@ -20,21 +20,32 @@ template('head', ['title' => 'Order']);
                 <div class="row mb-3 order-status">
                     <div class="col">
                         <h2>Order #<?php echo $order->id; ?></h2>
-                        <p><span class="fw-bold">Order date: </span><?php $date = date_create($order->created_at); echo date_format($date, 'Y/m/d'); ?></p>
-                        <p><span class="fw-bold">Order status: </span><?php echo $status; ?></p>
-                        <p><span class="fw-bold">Order Total: </span>€ <?php echo $order->total_products; ?></p>
+                        <p><span class="fw-bold">Date: </span><?php $date = date_create($order->created_at); echo date_format($date, 'Y/m/d'); ?></p>
+                        <p><span class="fw-bold">Status: </span><?php echo $status; ?></p>
+                        <p><span class="fw-bold">Total: </span>€ <?php echo $order->getTotalPrice(); ?></p>
+                        <p>
+                            <span class="fw-bold">Paid at: </span>
+                            <?php
+                            if (!is_null($order->paid_at)) {
+                                $date = date_create($order->paid_at);
+                                echo date_format($date, 'Y/m/d');
+                            } else {
+                                echo 'Not paid yet';
+                            }
+                            ?>
+                        </p>
                     </div>
                     <div class="col">
-                        <h2>Shipped to:</h2>
-                        <p><?php echo $address->first_name . ' ' . $address->last_name; ?><br/>
-                            <?php echo $address->address_line1; ?><br/>
-                            <?php if($address->address_line2 != null) echo $address->address_line2 . '<br/>'; ?>
-                            <?php echo $address->postcode . ' ' . $address->city; ?><br/>
+                        <h2><?php if($status === 'shipped') echo 'Shipped to:'; else echo 'Ship to:'; ?></h2>
+                        <p><?php echo htmlspecialchars($address->first_name . ' ' . $address->last_name); ?><br/>
+                            <?php echo htmlspecialchars($address->address_line1); ?><br/>
+                            <?php if($address->address_line2 != null) echo htmlspecialchars($address->address_line2) . '<br/>'; ?>
+                            <?php echo htmlspecialchars($address->postcode . ' ' . $address->city); ?><br/>
                             <?php echo $address->getCountryName(); ?></p>
                     </div>
                 </div>
                 <div class="row gx-md-3  row-cols-xl-3 justify-content-center">
-                    <table class="table table-striped table-hover" id="products-table">
+                    <table class="table table-striped" id="products-table">
                         <thead>
                         <tr>
                             <th scope="col">Thumbnail</th>
@@ -47,8 +58,8 @@ template('head', ['title' => 'Order']);
                         <tbody>
                             <?php foreach ($products as $product): ?>
                                 <tr>
-                                    <td><img class="img-thumbnail img-preview" src="<?php echo url($product->thumbnail_path) ?>" alt="<?php echo $product->name; ?>"></td>
-                                    <td><?php echo $product->name; ?></td>
+                                    <td><img class="img-thumbnail img-preview" src="<?php echo url($product->thumbnail_path) ?>" alt="<?php echo htmlspecialchars($product->name); ?>"></td>
+                                    <td><?php echo htmlspecialchars($product->name); ?></td>
                                     <td class="align-right ">€ <?php echo number_format((float)$product->price, 2, '.', ''); ?></td>
                                     <td class="align-right"><?php echo $product->quantity; ?></td>
                                     <td class="align-right">€ <?php echo number_format((float)$product->price * $product->quantity, 2, '.', ''); ?></td>
@@ -70,7 +81,7 @@ template('head', ['title' => 'Order']);
                             </tr>
                             <tr>
                                 <td colspan="4" class="text-end fw-bold">Total:</td>
-                                <td class="align-right">€ <?php echo $order->total_products + $order->total_shipping; ?></td>
+                                <td class="align-right">€ <?php echo $order->getTotalPrice(); ?></td>
                             </tr>
                         </tfoot>
                     </table>

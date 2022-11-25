@@ -6,6 +6,7 @@ use App\Controllers\LoginController;
 use App\Controllers\OrderController;
 use App\Controllers\ProductController;
 use App\Controllers\RegisterController;
+use App\Controllers\UserController;
 use App\Middleware\AdminRoleMiddleware;
 use Core\Middleware\AuthMiddleware;
 use Core\Routing\Route;
@@ -70,4 +71,24 @@ return [
     Route::delete('/admin/product/{id}', [ProductController::class, 'destroy'])
         ->withMiddleware(AuthMiddleware::class)
         ->withMiddleware(AdminRoleMiddleware::class),
+
+    // Order routes
+    Route::get('/admin/order', [OrderController::class, 'indexAdmin'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+    Route::get('/admin/order/{id}', [OrderController::class, 'showAdmin'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+    Route::post('/admin/order/{id}', [OrderController::class, 'update'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+
+    // User routes
+    Route::get('/admin/user', [UserController::class, 'index'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+    Route::post('/admin/user/{id}', [UserController::class, 'update'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+
 ];

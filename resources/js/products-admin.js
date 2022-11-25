@@ -24,7 +24,7 @@ function addToProductsTable(product, atTop = false) {
     productRow.querySelector('tr').setAttribute('data-id', product.id);
     productRowChildren[0].children[0].src = product.thumbnail_path;
     productRowChildren[1].textContent = product.name;
-    productRowChildren[2].textContent = product.price;
+    productRowChildren[2].textContent = '€ ' + product.price;
     productRowChildren[3].textContent = product.stock_quantity;
     if (atTop) {
         productTable.querySelector('tbody').prepend(productRow);
@@ -65,7 +65,7 @@ function editProductInProductsTable(id, product) {
     let productRowChildren = productRow.children;
     productRowChildren[0].children[0].src = product.thumbnail_path;
     productRowChildren[1].textContent = product.name;
-    productRowChildren[2].textContent = product.price;
+    productRowChildren[2].textContent = '€ ' + product.price;
     productRowChildren[3].textContent = product.stock_quantity;
 }
 

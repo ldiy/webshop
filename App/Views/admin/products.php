@@ -7,7 +7,6 @@ template('head', ['title' => 'Products - Admin']);
 
 <!-- Stylesheets -->
 <link rel="stylesheet" href="<?php echo url('/resources/css/products-admin.css'); ?>">
-<link rel="stylesheet" href="<?php echo url('/resources/css/sidebar.css'); ?>">
 
 <div class="d-flex flex-column min-vh-100">
 
@@ -16,11 +15,14 @@ template('head', ['title' => 'Products - Admin']);
 
     <!--  Main  -->
     <main class="flex-fill">
+        <!-- Breadcrumb -->
+        <?php template('breadcrumb', ['items' => [
+            ['name' => 'Home', 'url' => url('/')],
+            ['name' => 'Admin', 'url' => url('/admin')],
+            ['name' => 'Products', 'url' => url('/admin/product')],
+        ]]); ?>
         <div class="container d-flex flex-row mt-4">
-            <nav class="flex-fill sidebar">
-                <a href="<?php echo url('/admin/users'); ?>" class="mb-3">Users</a>
-                <a href="<?php echo url('/admin/orders'); ?>" class="mb-3">Orders</a>
-            </nav>
+            <?php template('admin-sidebar'); ?>
             <div class="flex-fill px-4">
                 <div class="row gx-md-3  row-cols-xl-3 justify-content-center">
                     <button class="btn btn-primary" onclick="addProductModal()">Add product</button>
@@ -206,8 +208,8 @@ template('head', ['title' => 'Products - Admin']);
         <td>Price</td>
         <td>Stock</td>
         <td>
-            <button class="btn btn-primary">Edit</button>
-            <button class="btn btn-danger">Delete</button>
+            <button class="btn btn-primary"><i class="fa-solid fa-pencil"></i></button>
+            <button class="btn btn-danger"><i class="fa-solid fa-trash"></i></button>
         </td>
     </tr>
 </template>

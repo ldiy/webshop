@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Models\Address;
 use App\Models\Order;
 use App\Models\Product;
+use Core\Exceptions\HttpNotFoundException;
 use Core\Exceptions\ValidationException;
 use Core\Http\JsonResponse;
 use Core\Http\Request;
@@ -39,7 +40,7 @@ class OrderController
     {
         $order = Order::find($id);
         if ($order === null) {
-            return redirect('/orders');
+            return redirect('/order');
         }
 
         // Temporarily disable soft deletes, so we can see all products
@@ -64,6 +65,36 @@ class OrderController
         ]);
     }
 
+    public function showAdmin(Request $request, int $id): Response
+    {
+        $order = Order::find($id);
+        if ($order === null) {
+            return redirect('/admin/order');
+        }
+
+        // Temporarily disable soft deletes, so we can see all products
+        Product::setSoftDelete(false);
+        $products = $order->products();
+        Product::setSoftDelete(true);
+
+        $address = $order->address();
+        $status = $order->getStatusName();
+
+        // Add data from the pivot table to the products
+        foreach ($products as $product) {
+            $product->quantity = $product->pivot['quantity'];
+            $product->price = $product->pivot['unit_price'];
+        }
+
+        return view('admin/order', [
+            'order' => $order,
+            'products' => $products,
+            'address' => $address,
+            'status' => $status,
+            'customer' => $order->user(),
+        ]);
+    }
+
     /**
      * @param Request $request
      * @return Response
@@ -74,6 +105,21 @@ class OrderController
         $orders = auth()->user()->orders();
         return view('orders', [
             'orders' => $orders,
+        ]);
+    }
+
+    /**
+     * @param Request $request
+     * @return Response
+     * @throws Throwable
+     */
+    public function indexAdmin(Request $request): Response
+    {
+        $ordersToShip = Order::where('status', '=',Order::findStatusCode('paid'))->orderBy('created_at', 'asc')->get();
+        $shippedOrders = Order::where('status', '=',Order::findStatusCode('shipped'))->orderBy('created_at', 'asc')->get();
+        return view('admin/orders', [
+            'ordersToShip' => $ordersToShip,
+            'shippedOrders' => $shippedOrders,
         ]);
     }
 
@@ -227,6 +273,34 @@ class OrderController
             'shippingCost' => $shippingCost,
             'total' => $total,
             'tax' => $tax,
+        ]);
+    }
+
+    /**
+     * Update the status of the order
+     *
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     * @throws ValidationException
+     */
+    public function update(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'status' => Rule::new()->required()->inArray(Order::getStatuses()),
+        ]);
+
+        $order = Order::find($id);
+        if (is_null($order)) {
+            throw new HttpNotFoundException('Order not found');
+        }
+
+        $order->setStatus((int)$request->input('status'));
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Order updated successfully',
+            'order' => $order,
         ]);
     }
 }

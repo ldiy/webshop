@@ -92,13 +92,51 @@ class Order extends Model
         return array_search($this->status, self::$statuses);
     }
 
-    public function setStatus(string $status): void
+    /**
+     * Update the status of the order.
+     * The model will immediately be updated in the database.
+     *
+     * @param string|int $status
+     * @return void
+     */
+    public function setStatus(string|int $status): void
     {
-        $this->status = self::$statuses[$status];
+        if (is_string($status)) {
+            $this->status = self::findStatusCode($status);
+        } else {
+            $this->status = $status;
+        }
+        $this->save();
     }
 
+    /**
+     * Get the total price of the order.
+     *
+     * @return float
+     */
+    public function getTotalPrice(): float
+    {
+        return $this->total_shipping + $this->total_products;
+    }
+
+    /**
+     * Find a status code by its name.
+     *
+     * @param string $status
+     * @return int
+     */
     public static function findStatusCode(string $status): int
     {
         return self::$statuses[$status];
+    }
+
+    /**
+     * Get all the possible statuses.
+     *
+     * @return array|int[]
+     */
+    public static function getStatuses(): array
+    {
+        return self::$statuses;
     }
 }

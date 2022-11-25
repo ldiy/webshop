@@ -1,0 +1,12 @@
+.align-right {
+    text-align: right;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.table-row:hover {
+    cursor: pointer;
+    background-color: #f0f5ff;
+}

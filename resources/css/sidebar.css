@@ -1,9 +1,9 @@
 .sidebar {
-    /*background-color: gray;*/
     min-width: 300px;
     max-width: 300px;
-    padding-right: 30px;
-    /*width: 300px;*/
+    padding: 5px;
+    background-color: #f0f5ff;
+    border-radius: 10px;
 }
 
 .category-link {
@@ -23,4 +23,24 @@
 
 .delimiter {
     margin: 10px 0;
+}
+
+.sidebar-link {
+    color: #000000;
+    font-size: 1.1rem;
+    text-decoration: none;
+    display: block;
+    padding: 5px 0 3px 10px;
+    border-radius: 5px;
+    margin-bottom: 0;
+}
+
+.sidebar-link:hover {
+    background-color: #c8daff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.sidebar .icon {
+    margin-right: 5px;
 }

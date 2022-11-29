@@ -338,12 +338,14 @@ class ProductController
 
         // Normalize the image array.
         $photos = [];
-        foreach ($request->file('images') as $id=>$image) {
-            $photos[] = [
-                'path' => $image->store('product_photos'),
-                'alt' => $request->input('alt')[$id],
-                'order' => $request->input('imageOrder')[$id],
-            ];
+        if (is_array($request->input('images'))) {
+            foreach ($request->file('images') as $id => $image) {
+                $photos[] = [
+                    'path' => $image->store('product_photos'),
+                    'alt' => $request->input('alt')[$id],
+                    'order' => $request->input('imageOrder')[$id],
+                ];
+            }
         }
 
         // Insert the product photos

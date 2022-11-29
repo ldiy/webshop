@@ -20,6 +20,8 @@ class User extends Model implements UserInterface
 {
     static string $table = 'user';
     static string $authIdentifierName = 'email';
+    static bool $softDelete = true;
+    static string $softDeleteColumn = 'deleted_at';
 
     protected array $hidden = [
         'password'
@@ -59,7 +61,13 @@ class User extends Model implements UserInterface
      */
     public static function findByAuthIdentifier($identifier): ?UserInterface
     {
-        $result = DB::table(static::$table)->where(static::$authIdentifierName, '=', $identifier)->first();
+        $result = DB::table(static::$table)->where(static::$authIdentifierName, '=', $identifier);
+
+        if (static::$softDelete) {
+            $result = $result->whereNull(static::$softDeleteColumn);
+        }
+
+        $result = $result->first();
 
         if (empty($result)) {
             return null;

@@ -91,6 +91,9 @@ return [
     Route::post('/admin/user/{id}', [UserController::class, 'update'])
         ->withMiddleware(AuthMiddleware::class)
         ->withMiddleware(AdminRoleMiddleware::class),
+    Route::delete('/admin/user/{id}', [UserController::class, 'destroy'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
 
     // Category routes
     Route::get('/admin/category', [CategoryController::class, 'index'])

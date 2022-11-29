@@ -33,6 +33,7 @@ template('head', ['title' => 'Users - Admin']);
                         <th scope="col">Email</th>
                         <th scope="col">role</th>
                         <th scope="col" class="align-center">Number of orders</th>
+                        <th scope="col" class="align-center">Delete</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -48,6 +49,11 @@ template('head', ['title' => 'Users - Admin']);
                                 </select>
                             </td>
                             <td class="align-center"><?php echo count($user->orders()); ?></td>
+                            <td class="align-center">
+                                <?php if($user->id !== auth()->user()->id): ?>
+                                    <button class="btn btn-danger" onclick="deleteUser(<?php echo $user->id; ?>)"><i class="fa-solid fa-trash"></i></button>
+                                <?php endif; ?>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                     </tbody>
@@ -77,6 +83,20 @@ template('head', ['title' => 'Users - Admin']);
             data: data,
             success: function (response) {
                 console.log(response);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    }
+
+    function deleteUser(userId) {
+        const url = '<?php echo url('/admin/user/'); ?>' + userId;
+        $.ajax({
+            url: url,
+            type: 'DELETE',
+            success: function (response) {
+                location.reload();
             },
             error: function (error) {
                 console.log(error);

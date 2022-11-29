@@ -10,3 +10,51 @@
     cursor: pointer;
     background-color: #f0f5ff;
 }
+
+.category {
+    background-color: #f0f5ff;
+    border-radius: 10px;
+    border: 1px solid #c8daff;
+    padding: 5px 5px 5px 15px;
+    margin-bottom: 10px;
+}
+
+.category-title {
+    font-size: 1.1rem;
+    margin: 0;
+    padding: 0;
+    display: inline;
+}
+
+.category:hover {
+    background-color: #c8daff;
+    cursor: pointer;
+}
+
+.category-thumbnail {
+    max-width: 50px;
+    max-height: 50px;
+    border-radius: 10px;
+    margin-right: 10px;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.img-preview {
+    max-width: 100px;
+    max-height: 100px;
+}
+
+.category .delete-icon{
+    display: none;
+}
+
+.category:hover .delete-icon {
+    display: inline;
+}
+
+.category .delete-icon:hover {
+    color: red;
+}

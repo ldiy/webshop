@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\CartController;
+use App\Controllers\CategoryController;
 use App\Controllers\HomeController;
 use App\Controllers\LoginController;
 use App\Controllers\OrderController;
@@ -88,6 +89,20 @@ return [
         ->withMiddleware(AuthMiddleware::class)
         ->withMiddleware(AdminRoleMiddleware::class),
     Route::post('/admin/user/{id}', [UserController::class, 'update'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+
+    // Category routes
+    Route::get('/admin/category', [CategoryController::class, 'index'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+    Route::post('/admin/category', [CategoryController::class, 'store'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+    Route::post('/admin/category/{id}', [CategoryController::class, 'update'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+    Route::delete('/admin/category/{id}', [CategoryController::class, 'destroy'])
         ->withMiddleware(AuthMiddleware::class)
         ->withMiddleware(AdminRoleMiddleware::class),
 

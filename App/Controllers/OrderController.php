@@ -43,6 +43,11 @@ class OrderController
             return redirect('/order');
         }
 
+        // Check if the order belongs to the current user
+        if ($order->user_id !== auth()->user()->id) {
+            throw new HttpNotFoundException('Order not found.');
+        }
+
         // Temporarily disable soft deletes, so we can see all products
         Product::setSoftDelete(false);
         $products = $order->products();
@@ -252,6 +257,15 @@ class OrderController
         // Check if it is an existing address or a new one, and get the country code
         if ($request->input('addressId')) {
             $address = Address::find($request->input('addressId'));
+
+            if (is_null($address)) {
+                throw ValidationException::fromMessages(['addressId' => 'The address does not exist.']);
+            }
+
+            if ($address->user_id !== auth()->user()->id) {
+                throw ValidationException::fromMessages(['addressId' => 'The address does not exist.']);
+            }
+
             $countryCode = $address->country_code;
         } else {
             $countryCode = $request->input('countryCode');

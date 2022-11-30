@@ -5,6 +5,7 @@ use App\Controllers\CategoryController;
 use App\Controllers\HomeController;
 use App\Controllers\LoginController;
 use App\Controllers\OrderController;
+use App\Controllers\PaymentController;
 use App\Controllers\ProductController;
 use App\Controllers\RegisterController;
 use App\Controllers\UserController;
@@ -49,7 +50,11 @@ return [
         ->withMiddleware(AuthMiddleware::class),
     Route::get('/order/{id}', [OrderController::class, 'show'])
         ->withMiddleware(AuthMiddleware::class),
-    Route::get('/order/{id}/pay', [OrderController::class, 'pay']) // TODO: redirect to payment page after order is created
+
+    // Payment routes
+    Route::get('/order/{id}/pay', [PaymentController::class, 'show']) // TODO: redirect to payment page after order is created
+        ->withMiddleware(AuthMiddleware::class),
+    Route::post('/order/{id}/pay', [PaymentController::class, 'store'])
         ->withMiddleware(AuthMiddleware::class),
 
 

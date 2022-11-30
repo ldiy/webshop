@@ -30,7 +30,7 @@ template('head', ['title' => 'Order']);
                                 $date = date_create($order->paid_at);
                                 echo date_format($date, 'Y/m/d');
                             } else {
-                                echo 'Not paid yet';
+                                echo 'Not paid yet: <a href="' . url('/order/' . $order->id . '/pay') . '">Pay now</a>';
                             }
                             ?>
                         </p>

@@ -236,7 +236,7 @@ $existingAddress = count($addresses) > 0;
             data: JSON.stringify(Object.fromEntries(data)),
             success: function (data) {
                 let orderId = data.order.id;
-                window.location.href = '<?php echo url('/order/'); ?>' + orderId;
+                window.location.href = '<?php echo url('/order/'); ?>' + orderId + '/pay';
             },
             error: function (data) {
                 console.log(data);

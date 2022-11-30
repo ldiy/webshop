@@ -82,7 +82,7 @@ template('head', ['title' => 'Dashboard - Admin']);
                     </div>
                 </div>
                 <div class="dashboard-item">
-                    <h3>Latest pending orders</h3>
+                    <h3>Latest paid orders</h3>
                     <hr class="delimiter">
                     <table class="table table-striped table-hover">
                         <thead>
@@ -106,7 +106,7 @@ template('head', ['title' => 'Dashboard - Admin']);
                     </table>
                     <?php if(count($newOrders) === 0): ?>
                         <div class="col-12">
-                            <p class="text-center">No orders that need to be shipped.</p>
+                            <p class="text-center">No orders that need to be handled.</p>
                         </div>
                     <?php endif; ?>
                 </div>

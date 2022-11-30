@@ -40,7 +40,7 @@ class HomeController
         $totalUsers = count(Role::getByName('User')->users());
         $totalProducts = count(Product::all());
         $totalOrders = count(Order::all());
-        $newOrders = Order::where('status', '=', Order::findStatusCode('pending'))->limit('10')->orderBy(Order::$createdAtColumn, 'desc')->get();
+        $newOrders = Order::where('status', '=', Order::findStatusCode('paid'))->limit('10')->orderBy(Order::$createdAtColumn, 'desc')->get();
 
         $topSellingProducts = $this->getTopSellingProducts(10);
         $totalRevenue = $this->calculateTotalRevenue();

@@ -56,6 +56,11 @@ return [
     /**
      * Admin routes
      */
+    // Dashboard
+    Route::get('/admin', [HomeController::class, 'admin'])
+        ->withMiddleware(AuthMiddleware::class)
+        ->withMiddleware(AdminRoleMiddleware::class),
+
     // Product routes
     Route::get('/admin/product', [ProductController::class, 'indexAdmin'])
         ->withMiddleware(AuthMiddleware::class)

@@ -18,6 +18,9 @@
                             <?php echo auth()->user()->getAttribute('first_name') ?>
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <?php if (auth()->user()->role()->name == 'admin'): ?>
+                                <li><a class="dropdown-item" href="<?php echo url('/admin') ?>">Admin</a></li>
+                            <?php endif; ?>
                             <li><a class="dropdown-item" href="<?php echo url('/order'); ?>">Order history</a></li>
                             <li><a class="dropdown-item" href="<?php echo url('/logout'); ?>">Logout</a></li>
                         </ul>

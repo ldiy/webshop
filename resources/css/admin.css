@@ -58,3 +58,11 @@
 .category .delete-icon:hover {
     color: red;
 }
+
+.dashboard-item {
+    border: 1px solid #c8daff;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 10px;
+    box-shadow: 1px 1px 10px #c8daff;
+}
